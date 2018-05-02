@@ -51,6 +51,8 @@
   (loop for resolver being the hash-values of *definition-resolvers*
         append (funcall resolver designator)))
 
+;; FIXME: Generify the expansion of symbols to designators.
+
 (defmethod find-definitions ((package cl:package))
   (loop for symbol being the symbols of package
         append (append (find-definitions symbol)

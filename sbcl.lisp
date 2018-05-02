@@ -24,6 +24,12 @@
                (list (find-class 'cl:generic-function) `(eql ,name) T)
                nil))
 
+(defmethod arguments ((callable callable))
+  (sb-introspect:function-lambda-list (object callable)))
+
+(defmethod arguments ((method method))
+  (sb-mop:method-lambda-list (object method)))
+
 (defgeneric sb-introspect-type (definition))
 
 (defmethod definition-source ((definition definition))
@@ -64,20 +70,35 @@
 (define-definition-introspect-type special-variable :variable)
 
 (defun transform-definition-source (source)
-  (let ((path (sb-introspect:definition-source-pathname source))))
-  (list :file (if (typep path 'logical-pathname)
-                  (translate-logical-pathname path)
-                  path)
-        :form (or (first (sb-introspect:definition-source-form-path source))
-                  (sb-introspect:definition-source-form-number source))
-        :offset (sb-introspect:definition-source-character-offset source)))
+  (when source
+    (list :file (sb-introspect:definition-source-pathname source)
+          :form (or (first (sb-introspect:definition-source-form-path source))
+                    (sb-introspect:definition-source-form-number source))
+          :offset (sb-introspect:definition-source-character-offset source))))
 
-(defun designator-type-p (designator)
-  (unless (listp designator)
-    (handler-case
-        (not (typep (sb-kernel:specifier-type symbol) 'sb-kernel:unknown-type))
-      (error () T))))
+(define-simple-definition-resolver setf-expander
+    (lambda (designator)
+      (sb-int:info :setf :expander designator)))
 
-(defun designator-special-p (designator)
-  (unless (listp designator)
-    (eq (sb-cltl2:variable-information designator) :special)))
+(define-definition-resolver method (designator)
+  (when (designator-generic-function-p designator)
+    (sb-mop:generic-function-methods (fdefinition designator))))
+
+(define-simple-definition-resolver method-combination
+    (lambda (designator)
+      (find-method #'sb-mop:find-method-combination
+                   nil
+                   (list (find-class 'cl:generic-function) `(eql ,designator) T)
+                   nil)))
+
+(define-simple-definition-resolver type-definition
+    (lambda (designator)
+      (eql :defined (sb-int:info :type :kind designator))))
+
+(define-simple-definition-resolver special-variable
+    (lambda (designator)
+      (eq :special (sb-cltl2:variable-information designator))))
+
+(define-simple-definition-resolver symbol-macro
+    (lambda (designator)
+      (info :variable :macro-expansion designator)))

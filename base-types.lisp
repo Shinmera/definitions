@@ -57,7 +57,7 @@
 
 (defclass method-combination (global-definition) ())
 
-(defclass class (type))
+(defclass class (type) ())
 
 (defclass condition (type) ())
 
@@ -104,16 +104,17 @@
 (define-simple-definition-resolver function designator-function-p)
 (define-simple-definition-resolver macro macro-function)
 (define-simple-definition-resolver compiler-macro compiler-macro-function)
-;; FIXME (define-simple-definition-resolver setf-expander ...)
 (define-simple-definition-resolver generic-function designator-generic-function-p)
-;; FIXME (define-simple-definition-resolver method-combination ...)
 (define-simple-definition-resolver class designator-class-p)
 (define-simple-definition-resolver condition designator-condition-p)
 (define-simple-definition-resolver structure designator-structure-p)
-(define-simple-definition-resolver type-definition designator-type-p)
-(define-simple-definition-resolver special-variable designator-special-p)
 (define-simple-definition-resolver constant designator-constant-p)
-;; FIXME (define-simple-definition-resolver symbol-macro ...)
+;; IMPL (define-simple-definition-resolver setf-expander ..)
+;; IMPL (define-definition-resolver method ..)
+;; IMPL (define-simple-definition-resolver method-combination ..)
+;; IMPL (define-simple-definition-resolver type-definition ..)
+;; IMPL (define-simple-definition-resolver special-variable ..)
+;; IMPL (define-simple-definition-resolver symbol-macro ..)
 
 (defun designator-function-p (designator)
   (and (fdefinition designator)
@@ -137,19 +138,6 @@
        (not (designator-structure-p designator))
        (not (designator-condition-p designator))
        (find-class designator NIL)))
-
-(defun designator-type-p (designator)
-  NIL)
-
-(defun designator-type-definition-p (designator)
-  (and (not (listp designator))
-       (not (designator-structure-p designator))
-       (not (designator-condition-p designator))
-       (not (find-class designator NIL))
-       (designator-type-p designator)))
-
-(defun designator-special-p (designator)
-  NIL)
 
 (defun designator-constant-p (designator)
   (unless (listp designator)

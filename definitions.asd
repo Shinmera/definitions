@@ -16,7 +16,9 @@
                (:file "protocol")
                (:file "base-types")
                (:file "sbcl" :if-feature :sbcl)
+               (:file "ccl" :if-feature :ccl)
                (:file "documentation"))
   :depends-on (:documentation-utils
-               (:feature :sbcl :sb-introspect :sb-cltl2)))
+               (:feature :sbcl (:require :sb-introspect))
+               (:feature :sbcl (:require :sb-cltl2))))
 
