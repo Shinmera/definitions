@@ -196,7 +196,12 @@ See ARGUMENTS")
 
 The secondary value of this function is :UNKNOWN if no known
 method of retrieving the lambda-list is available. In that
-case, the primary value is always NIL.")
+case, the primary value is always NIL.
+
+A call to this function for any subtype of CALLABLE must
+not error.
+
+See CALLABLE")
 
   (cl:type global-definition
     "Superclass for global definitions reachable by a simple designator.
@@ -434,6 +439,9 @@ See GLOBAL-DEFINITION")
 
   (cl:function qualifiers
     "Returns the list of qualifiers used for the method.
+
+A call to this function for any subtype of METHOD must
+not error.
 
 See METHOD"))
 
