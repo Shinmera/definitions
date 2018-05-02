@@ -21,7 +21,7 @@
 (defmethod object ((method-combination method-combination))
   (find-method #'sb-mop:find-method-combination
                nil
-               (list (find-class 'cl:generic-function) `(eql ,name) T)
+               (list (find-class 'cl:generic-function) `(eql ,(designator method-combination)) T)
                nil))
 
 (defmethod arguments ((callable callable))
@@ -76,29 +76,96 @@
                     (sb-introspect:definition-source-form-number source))
           :offset (sb-introspect:definition-source-character-offset source))))
 
-(define-simple-definition-resolver setf-expander
-    (lambda (designator)
-      (sb-int:info :setf :expander designator)))
+(define-simple-definition-resolver setf-expander (designator)
+  (sb-int:info :setf :expander designator))
 
 (define-definition-resolver method (designator)
   (when (designator-generic-function-p designator)
-    (sb-mop:generic-function-methods (fdefinition designator))))
+    (loop for method in (sb-mop:generic-function-methods (fdefinition designator))
+          collect (make-instance 'method :designator designator :method method))))
 
-(define-simple-definition-resolver method-combination
-    (lambda (designator)
-      (find-method #'sb-mop:find-method-combination
-                   nil
-                   (list (find-class 'cl:generic-function) `(eql ,designator) T)
-                   nil)))
+(define-simple-definition-resolver method-combination (designator)
+  (find-method #'sb-mop:find-method-combination
+               nil
+               (list (find-class 'cl:generic-function) `(eql ,designator) T)
+               nil))
 
-(define-simple-definition-resolver type-definition
-    (lambda (designator)
-      (eql :defined (sb-int:info :type :kind designator))))
+(define-simple-definition-resolver type-definition (designator)
+  (eql :defined (sb-int:info :type :kind designator)))
 
-(define-simple-definition-resolver special-variable
-    (lambda (designator)
-      (eq :special (sb-cltl2:variable-information designator))))
+(define-simple-definition-resolver special-variable (designator)
+  (eq :special (sb-cltl2:variable-information designator)))
 
-(define-simple-definition-resolver symbol-macro
-    (lambda (designator)
-      (info :variable :macro-expansion designator)))
+(define-simple-definition-resolver symbol-macro (designator)
+  (sb-int:info :variable :macro-expansion designator))
+
+;;; Extra SBCL definitions
+
+(defclass alien-type (global-definition) ())
+
+(define-simple-definition-resolver alien-type (designator)
+  (sb-int:info :alien-type :definition designator))
+
+(define-definition-introspect-type alien-type :alien-type)
+
+(defclass optimizer (global-definition)
+  ((optimizer :initarg :optimizer :reader object)))
+
+(define-definition-resolver optimizer (designator)
+  (let ((fun-info (when (symbolp designator)
+                    (sb-int:info :function :info designator))))
+    (when fun-info
+      (let ((otypes '((sb-c:fun-info-derive-type . sb-c:derive-type)
+                      (sb-c:fun-info-ltn-annotate . sb-c:ltn-annotate)
+                      (sb-c:fun-info-optimizer . sb-c:optimizer)
+                      (sb-c:fun-info-ir2-convert . sb-c:ir2-convert)
+                      (sb-c::fun-info-stack-allocate-result . sb-c::stack-allocate-result)
+                      (sb-c::fun-info-constraint-propagate . sb-c::constraint-propagate)
+                      (sb-c::fun-info-constraint-propagate-if . sb-c::constraint-propagate-if)
+                      (sb-c::fun-info-call-type-deriver . sb-c::call-type-deriver))))
+        (loop for (reader . name) in otypes
+              for fn = (funcall reader fun-info)
+              when fn collect (make-instance 'optimizer :designator designator :optimizer fn))))))
+
+(define-definition-introspect-type optimizer :optimizer)
+
+(defclass source-transform (global-definition) ())
+
+(define-simple-definition-resolver source-transform (designator)
+  (cond ((and (listp designator) (eql 'cl:setf (car designator)))
+         (sb-int:info :function :source-transform (second designator)))
+        ((symbolp designator)
+         (sb-int:info :function :source-transform designator))))
+
+(define-definition-introspect-type source-transform :source-transform)
+
+(defclass transform (global-definition)
+  ((transform :initarg :transform :reader object)))
+
+(define-definition-resolver transform (designator)
+  (let ((fun-info (when (symbolp designator)
+                    (sb-int:info :function :info designator))))
+    (when fun-info
+      (loop for transform in (sb-c::fun-info-transforms fun-info)
+            collect (make-instance 'transform :designator designator :transform transform)))))
+
+(define-definition-introspect-type transform :transform)
+
+(defclass vop (global-definition) ())
+
+(define-simple-definition-resolver vop (designator)
+  (sb-c::vop-parse-or-lose designator))
+
+(define-definition-introspect-type vop :vop)
+
+(defclass ir1-convert (global-definition) ())
+
+(define-simple-definition-resolver ir1-convert (designator)
+  (sb-int:info :function :ir1-convert designator))
+
+(define-definition-introspect-type ir1-convert :ir1-convert)
+
+(defclass declaration (global-definition) ())
+
+(define-simple-definition-resolver declaration (designator)
+  (sb-int:info :source-location :declaration designator))

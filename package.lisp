@@ -23,7 +23,8 @@
    #:condition
    #:structure
    #:constant
-   #:symbol-macro)
+   #:symbol-macro
+   #:declaration)
   (:use #:cl)
   ;; base-types.lisp
   (:export
@@ -63,4 +64,14 @@
    #:arguments
    #:definition-resolver
    #:remove-definition-resolver
-   #:define-definition-resolver))
+   #:define-definition-resolver)
+  ;;; Extra
+  ;; sbcl.lisp
+  (:export
+   #:alien-type
+   #:optimizer
+   #:source-transform
+   #:transform
+   #:vop
+   #:ir1-convert
+   #:declaration))

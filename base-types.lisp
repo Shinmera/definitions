@@ -47,7 +47,7 @@
 
 (defclass generic-function (function) ())
 
-(defclass method (callable)
+(defclass method (global-definition callable)
   ((method :initarg :method :initform (error "METHOD required.") :reader object)))
 
 (defgeneric qualifiers (method))
@@ -95,9 +95,12 @@
 (define-simple-documentation-lookup method-combination 'cl:method-combination)
 (define-simple-documentation-lookup structure 'cl:structure)
 
-(defmacro define-simple-definition-resolver (class lookup-function)
+(defmacro define-simple-definition-resolver (class lookup-function &body body)
   `(define-definition-resolver ,class (,class)
-     (when (ignore-errors (,lookup-function ,class))
+     (when (ignore-errors ,(if body
+                               `(destructuring-bind ,lookup-function ,class
+                                  ,@body)
+                               `(,lookup-function ,class)))
        (list (make-instance ',class :designator ,class)))))
 
 (define-simple-definition-resolver package find-package)
