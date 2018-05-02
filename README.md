@@ -6,7 +6,7 @@ In order to list all discoverable definitions in a package, all you need to do i
 
     (find-definitions "CL")
 
-Each definition is associated with a `designator` that names it. Most, but not all, definitions also allow you to retrieve the `object` that they define. If the designator is translatable to a symbol, the definition will also give you access to the `symbol`, `name`, `package`, and `visibility` within the package. Beyond that, you can also retrieve the associated `documentation` and, depending on implementation support, the `source-location` of the definition.
+Each `definition` is associated with a `designator` that names it. Most, but not all, definitions also allow you to retrieve the `object` that they define. If the designator is translatable to a symbol, the definition will also give you access to the `symbol`, `name`, `package`, and `visibility` within the package. Beyond that, you can also retrieve the associated `documentation` and, depending on implementation support, the `source-location` of the definition.
 
 Some subclasses of the general `definition`, like `callable` give you access to further information like the `arguments` or the `qualifiers`.
 
@@ -17,10 +17,11 @@ Often time libraries and systems will introduce their own bindings and definitio
 
 Adding new definition types is a matter of subclassing `definition`, using `define-definition-resolver` to handle the definition discovery, and adding methods to the relevant generic functions to provide the needed information.
 
-Typically your definition will be a `global-definition`, and thus be tied to a simple designator like a symbol that will find the definition in a global namespace. The `global-definition` provides default implementations for `symbol`, `name`, `package`, `type`, and `visibility`, removing much of the need for duplicating those methods.
+Typically your definition will be a `global-definition`, and thus be tied to a simple designator like a symbol that will find the definition in a global namespace. The `global-definition` provides default implementations for `symbol`, `name`, `package`, and `visibility`, removing much of the need for duplicating those methods.
 
     (defclass page (global-definition) ())
 
+    (define-simple-type-map page my-package:page)
     (define-simple-definition-resolver page my-package:find-page)
     (define-simple-object-lookup page my-package:find-page)
     (define-simple-documentation-lookup page my-package:page)

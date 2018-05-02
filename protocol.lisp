@@ -30,9 +30,15 @@
 
 (defgeneric arguments (callable))
 
+(defmethod arguments ((callable callable))
+  (values NIL :unknown))
+
 (defclass global-definition (definition)
   ((designator :initarg :designator :reader designator))
   (:default-initargs :designator (error "DESIGNATOR required.")))
+
+(defmethod object ((definition global-definition))
+  (values NIL :unknown))
 
 (defmethod symbol ((definition global-definition))
   (let ((designator (designator definition)))
@@ -49,11 +55,14 @@
 (defmethod package ((definition global-definition))
   (symbol-package (symbol definition)))
 
-(defmethod type ((definition global-definition))
-  (type-of definition))
-
 (defmethod visibility ((definition global-definition))
   (nth-value 1 (find-symbol (name definition) (package definition))))
+
+(defmethod documentation ((definition global-definition))
+  (values NIL :unknown))
+
+(defmethod source-location ((definition global-definition))
+  (values NIL :unknown))
 
 (defvar *definition-resolvers* (make-hash-table :test 'eql))
 
@@ -90,8 +99,7 @@
 (defun apropos-definitions (string)
   (loop for package in (list-all-packages)
         append (loop for symbol being the symbols of *package*
-                     when (or (search string (symbol-name symbol))
-                              (search string (package-name package)))
+                     when (search string (symbol-name symbol) :test #'char-equal)
                      append (append (find-definitions symbol)
                                     (find-definitions `(setf ,symbol))))))
 
@@ -112,4 +120,10 @@
 
 (defmacro define-simple-documentation-lookup (class documentation-type)
   `(defmethod documentation ((,class ,class))
-     (cl:documentation (symbol ,class) ,documentation-type)))
+     ,(if (eql documentation-type T)
+          `(cl:documentation (object ,class) 'T)
+          `(cl:documentation (designator ,class) ',documentation-type))))
+
+(defmacro define-simple-type-map (class type)
+  `(defmethod type ((,class ,class))
+     ',type))

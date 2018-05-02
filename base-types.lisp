@@ -7,44 +7,48 @@
 (in-package #:org.shirakumo.definitions)
 
 (defclass type (global-definition) ())
-
 (defclass variable (global-definition) ())
-
 (defclass package (global-definition) ())
-
 (defclass function (global-definition callable) ())
-
 (defclass macro (global-definition callable) ())
-
 (defclass compiler-macro (global-definition callable) ())
-
 (defclass setf-expander (global-definition callable) ())
-
 (defclass generic-function (function) ())
-
 (defclass method (global-definition callable)
   ((method :initarg :method :initform (error "METHOD required.") :reader object)))
+(defclass method-combination (global-definition) ())
+(defclass class (type) ())
+(defclass condition (type) ())
+(defclass structure (type) ())
+(defclass type-definition (type) ())
+(defclass special-variable (variable) ())
+(defclass constant (variable) ())
+(defclass symbol-macro (variable) ())
+
+;; FIXME: Add introspection for method combination, methods.
 
 (defgeneric qualifiers (method))
 
 (defmethod qualifiers ((method method))
   (method-qualifiers (object method)))
 
-(defclass method-combination (global-definition) ())
-
-(defclass class (type) ())
-
-(defclass condition (type) ())
-
-(defclass structure (type) ())
-
-(defclass type-definition (type) ())
-
-(defclass special-variable (variable) ())
-
-(defclass constant (variable) ())
-
-(defclass symbol-macro (variable) ())
+(define-simple-type-map type cl:type)
+(define-simple-type-map variable cl:variable)
+(define-simple-type-map package cl:package)
+(define-simple-type-map function cl:function)
+(define-simple-type-map macro cl:function)
+(define-simple-type-map compiler-macro cl:compiler-macro)
+(define-simple-type-map setf-expander cl:setf)
+(define-simple-type-map generic-function cl:generic-function)
+(define-simple-type-map method cl:method)
+(define-simple-type-map method-combination cl:method-combination)
+(define-simple-type-map class cl:class)
+(define-simple-type-map condition cl:condition)
+(define-simple-type-map structure cl:structure)
+(define-simple-type-map type-definition cl:type)
+(define-simple-type-map special-variable cl:variable)
+(define-simple-type-map constant cl:variable)
+(define-simple-type-map symbol-macro cl:variable)
 
 (define-simple-object-lookup package find-package)
 (define-simple-object-lookup function fdefinition)
@@ -52,15 +56,16 @@
 (define-simple-object-lookup compiler-macro compiler-macro-function)
 (define-simple-object-lookup class find-class)
 
-(define-simple-documentation-lookup type 'cl:type)
-(define-simple-documentation-lookup variable 'cl:variable)
-(define-simple-documentation-lookup package 'cl:package)
-(define-simple-documentation-lookup function 'cl:function)
-(define-simple-documentation-lookup macro 'cl:function)
-(define-simple-documentation-lookup compiler-macro 'cl:compiler-macro)
-(define-simple-documentation-lookup setf-expander 'cl:setf)
-(define-simple-documentation-lookup method-combination 'cl:method-combination)
-(define-simple-documentation-lookup structure 'cl:structure)
+(define-simple-documentation-lookup type cl:type)
+(define-simple-documentation-lookup variable cl:variable)
+(define-simple-documentation-lookup package T)
+(define-simple-documentation-lookup function cl:function)
+(define-simple-documentation-lookup macro cl:function)
+(define-simple-documentation-lookup compiler-macro cl:compiler-macro)
+(define-simple-documentation-lookup setf-expander cl:setf)
+(define-simple-documentation-loolup method T)
+(define-simple-documentation-lookup method-combination cl:method-combination)
+(define-simple-documentation-lookup structure cl:structure)
 
 (define-simple-definition-resolver package find-package)
 (define-simple-definition-resolver function designator-function-p)

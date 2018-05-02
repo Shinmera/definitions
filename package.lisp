@@ -68,7 +68,8 @@
    #:apropos-definitions
    #:define-simple-definition-resolver
    #:define-simple-object-lookup
-   #:define-simple-documentation-lookup)
+   #:define-simple-documentation-lookup
+   #:define-simple-type-map)
   ;;; Extra
   ;; sbcl.lisp
   (:export

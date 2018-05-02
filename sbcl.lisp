@@ -30,22 +30,14 @@
 (defmethod arguments ((method method))
   (sb-mop:method-lambda-list (object method)))
 
-(defgeneric sb-introspect-type (definition))
-
-(defmethod definition-source ((definition definition))
-  (transform-definition-source
-   (list
-    (sb-introspect:find-definition-sources-by-name
-     (designator definition)
-     (sb-introspect-type definition)))))
-
 (defmethod definition-source ((definition definition))
   (transform-definition-source
    (sb-introspect:find-definition-source (object definition))))
 
 (defmacro define-definition-introspect-type (class type)
-  `(defmethod sb-introspect-type ((,class ,class))
-     ,type))
+  `(defmethod definition-source ((,class ,class))
+     (transform-definition-source
+      (first (sb-introspect:find-definition-sources-by-name (designator ,class) ,type)))))
 
 (define-definition-introspect-type class :class)
 (define-definition-introspect-type compiler-macro :compiler-macro)
@@ -96,6 +88,8 @@
 
 (defclass alien-type (global-definition) ())
 
+(define-simple-type-map alien-type sb-alien-internals:alien-type)
+
 (define-simple-definition-resolver alien-type (designator)
   (sb-int:info :alien-type :definition designator))
 
@@ -104,18 +98,20 @@
 (defclass optimizer (global-definition)
   ((optimizer :initarg :optimizer :reader object)))
 
+(define-simple-type-map optimizer sb-c:optimizer)
+
 (define-definition-resolver optimizer (designator)
   (let ((fun-info (when (symbolp designator)
                     (sb-int:info :function :info designator))))
     (when fun-info
-      (let ((otypes '((sb-c:fun-info-derive-type . sb-c:derive-type)
-                      (sb-c:fun-info-ltn-annotate . sb-c:ltn-annotate)
-                      (sb-c:fun-info-optimizer . sb-c:optimizer)
-                      (sb-c:fun-info-ir2-convert . sb-c:ir2-convert)
-                      (sb-c::fun-info-stack-allocate-result . sb-c::stack-allocate-result)
-                      (sb-c::fun-info-constraint-propagate . sb-c::constraint-propagate)
-                      (sb-c::fun-info-constraint-propagate-if . sb-c::constraint-propagate-if)
-                      (sb-c::fun-info-call-type-deriver . sb-c::call-type-deriver))))
+      (let ((otypes '(sb-c:fun-info-derive-type
+                      sb-c:fun-info-ltn-annotate
+                      sb-c:fun-info-optimizer
+                      sb-c:fun-info-ir2-convert
+                      sb-c::fun-info-stack-allocate-result
+                      sb-c::fun-info-constraint-propagate
+                      sb-c::fun-info-constraint-propagate-if
+                      sb-c::fun-info-call-type-deriver)))
         (loop for (reader . name) in otypes
               for fn = (funcall reader fun-info)
               when fn collect (make-instance 'optimizer :designator designator :optimizer fn))))))
@@ -123,6 +119,8 @@
 (define-definition-introspect-type optimizer :optimizer)
 
 (defclass source-transform (global-definition) ())
+
+(define-simple-type-map source-transform :source-transform)
 
 (define-simple-definition-resolver source-transform (designator)
   (cond ((and (listp designator) (eql 'cl:setf (car designator)))
@@ -135,6 +133,8 @@
 (defclass transform (global-definition)
   ((transform :initarg :transform :reader object)))
 
+(define-simple-type-map transform sb-c::transform)
+
 (define-definition-resolver transform (designator)
   (let ((fun-info (when (symbolp designator)
                     (sb-int:info :function :info designator))))
@@ -146,6 +146,8 @@
 
 (defclass vop (global-definition) ())
 
+(define-simple-type-map vop sb-c::vop)
+
 (define-simple-definition-resolver vop (designator)
   (sb-c::vop-parse-or-lose designator))
 
@@ -153,12 +155,16 @@
 
 (defclass ir1-convert (global-definition) ())
 
+(define-simple-type-map ir1-convert sb-c::ir1-convert)
+
 (define-simple-definition-resolver ir1-convert (designator)
   (sb-int:info :function :ir1-convert designator))
 
 (define-definition-introspect-type ir1-convert :ir1-convert)
 
 (defclass declaration (global-definition) ())
+
+(define-simple-type-map declaration cl:declaration)
 
 (define-simple-definition-resolver declaration (designator)
   (sb-int:info :source-location :declaration designator))
