@@ -63,7 +63,7 @@
 (define-simple-documentation-lookup macro cl:function)
 (define-simple-documentation-lookup compiler-macro cl:compiler-macro)
 (define-simple-documentation-lookup setf-expander cl:setf)
-(define-simple-documentation-loolup method T)
+(define-simple-documentation-lookup method T)
 (define-simple-documentation-lookup method-combination cl:method-combination)
 (define-simple-documentation-lookup structure cl:structure)
 
