@@ -206,7 +206,12 @@ See <a href="#DEFINITIONS:DEFINITION-RESOLVER">DEFINITION-RESOLVER</a></pre></di
 
 The secondary value of this function is :UNKNOWN if no known
 method of retrieving the lambda-list is available. In that
-case, the primary value is always NIL.</pre></div> </article> </li><li> <a name="DEFINITIONS:DESIGNATOR"> </a> <article id="GENERIC DEFINITIONS:DESIGNATOR"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ADESIGNATOR">DESIGNATOR</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the designator that names this definition.
+case, the primary value is always NIL.
+
+A call to this function for any subtype of CALLABLE must
+not error.
+
+See <a href="#DEFINITIONS:CALLABLE">CALLABLE</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DESIGNATOR"> </a> <article id="GENERIC DEFINITIONS:DESIGNATOR"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ADESIGNATOR">DESIGNATOR</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the designator that names this definition.
 
 Note that a single designator may name many definitions.
 
@@ -274,6 +279,9 @@ A call to this function for any subtype of DEFINITION must
 not error.
 
 See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:QUALIFIERS"> </a> <article id="GENERIC DEFINITIONS:QUALIFIERS"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3AQUALIFIERS">QUALIFIERS</a></code></h4> <code class="qualifiers"></code> <code class="arguments">METHOD</code><code>)</code>  </header> <div class="docstring"><pre>Returns the list of qualifiers used for the method.
+
+A call to this function for any subtype of METHOD must
+not error.
 
 See <a href="#DEFINITIONS:METHOD">METHOD</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SOURCE-LOCATION"> </a> <article id="GENERIC DEFINITIONS:SOURCE-LOCATION"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ASOURCE-LOCATION">SOURCE-LOCATION</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the source location information of this definition.
 
