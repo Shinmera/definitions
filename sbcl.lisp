@@ -39,21 +39,14 @@
      (designator definition)
      (sb-introspect-type definition)))))
 
-(defmacro define-definition-object-source-lookup (class)
-  `(defmethod definition-source ((,class ,class))
-     (transform-definition-source
-      (sb-introspect:find-definition-source (object ,class)))))
+(defmethod definition-source ((definition definition))
+  (transform-definition-source
+   (sb-introspect:find-definition-source (object definition))))
 
 (defmacro define-definition-introspect-type (class type)
   `(defmethod sb-introspect-type ((,class ,class))
      ,type))
 
-(define-definition-object-source-lookup function)
-(define-definition-object-source-lookup condition)
-(define-definition-object-source-lookup structure)
-(define-definition-object-source-lookup package)
-(define-definition-object-source-lookup class)
-(define-definition-object-source-lookup method)
 (define-definition-introspect-type class :class)
 (define-definition-introspect-type compiler-macro :compiler-macro)
 (define-definition-introspect-type condition :condition)

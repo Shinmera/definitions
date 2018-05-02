@@ -25,10 +25,9 @@
 (defmethod arguments ((method method))
   (ccl:method-lambda-list (object method)))
 
-(defmacro define-definition-object-source-lookup (class)
-  `(defmethod definition-source ((,class ,class))
-     (let ((,class (object ,class)))
-       (transform-definition-sources (ccl:find-definition-sources ,class) :object ,class))))
+(defmethod definition-source ((definition definition))
+  (let ((object (object definition)))
+    (transform-definition-sources (ccl:find-definition-sources object) :object object)))
 
 (defmacro define-definition-source-type-lookup (class type)
   `(defmethod definition-source ((,class ,class))
@@ -63,13 +62,11 @@
           :form NIL
           :offset (ccl:source-note-start-pos source))))
 
-(define-definition-object-source-lookup package)
 (define-definition-source-type-lookup function ccl::function-definition-type)
 (define-definition-source-type-lookup macro ccl::function-definition-type)
 (define-definition-source-type-lookup compiler-macro ccl::compiler-macro-definition-type)
 (define-definition-source-type-lookup setf-expander ccl::setf-expander-definition-type)
 (define-definition-source-type-lookup generic-function ccl::function-definition-type)
-(define-definition-object-source-lookup method)
 (define-definition-source-type-lookup method-combination ccl::method-combination-definition-type)
 (define-definition-source-type-lookup class ccl::class-definition-type)
 (define-definition-source-type-lookup condition ccl::class-definition-type)

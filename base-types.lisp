@@ -6,31 +6,6 @@
 
 (in-package #:org.shirakumo.definitions)
 
-(defclass global-definition (definition)
-  ((designator :initarg :designator :reader designator))
-  (:default-initargs :designator (error "DESIGNATOR required.")))
-
-(defmethod symbol ((definition global-definition))
-  (let ((designator (designator definition)))
-    (cond ((not (listp designator))
-           designator)
-          ((eql 'setf (first designator))
-           (second designator))
-          (T
-           (first designator)))))
-
-(defmethod name ((definition global-definition))
-  (symbol-name (symbol definition)))
-
-(defmethod package ((definition global-definition))
-  (symbol-package (symbol definition)))
-
-(defmethod type ((definition global-definition))
-  (type-of definition))
-
-(defmethod visibility ((definition global-definition))
-  (nth-value 1 (find-symbol (name definition) (package definition))))
-
 (defclass type (global-definition) ())
 
 (defclass variable (global-definition) ())
@@ -71,19 +46,11 @@
 
 (defclass symbol-macro (variable) ())
 
-(defmacro define-simple-object-lookup (class lookup-function)
-  `(defmethod object ((,class ,class))
-     (,lookup-function (designator ,class))))
-
 (define-simple-object-lookup package find-package)
 (define-simple-object-lookup function fdefinition)
 (define-simple-object-lookup macro macro-function)
 (define-simple-object-lookup compiler-macro compiler-macro-function)
 (define-simple-object-lookup class find-class)
-
-(defmacro define-simple-documentation-lookup (class documentation-type)
-  `(defmethod documentation ((,class ,class))
-     (cl:documentation (symbol ,class) ,documentation-type)))
 
 (define-simple-documentation-lookup type 'cl:type)
 (define-simple-documentation-lookup variable 'cl:variable)
@@ -94,14 +61,6 @@
 (define-simple-documentation-lookup setf-expander 'cl:setf)
 (define-simple-documentation-lookup method-combination 'cl:method-combination)
 (define-simple-documentation-lookup structure 'cl:structure)
-
-(defmacro define-simple-definition-resolver (class lookup-function &body body)
-  `(define-definition-resolver ,class (,class)
-     (when (ignore-errors ,(if body
-                               `(destructuring-bind ,lookup-function ,class
-                                  ,@body)
-                               `(,lookup-function ,class)))
-       (list (make-instance ',class :designator ,class)))))
 
 (define-simple-definition-resolver package find-package)
 (define-simple-definition-resolver function designator-function-p)
@@ -120,28 +79,31 @@
 ;; IMPL (define-simple-definition-resolver symbol-macro ..)
 
 (defun designator-function-p (designator)
-  (and (fdefinition designator)
-       (or (listp designator)
-           (not (macro-function designator)))
-       (not (typep (fdefinition designator) 'standard-generic-function))))
+  (ignore-errors
+   (and (fdefinition designator)
+        (or (listp designator)
+            (not (macro-function designator)))
+        (not (typep (fdefinition designator) 'standard-generic-function)))))
 
 (defun designator-generic-function-p (designator)
-  (typep (fdefinition designator) 'standard-generic-function))
+  (ignore-errors
+   (typep (fdefinition designator) 'standard-generic-function)))
 
 (defun designator-structure-p (designator)
-  (unless (listp designator)
+  (when (symbolp designator)
     (ignore-errors (subtypep designator 'structure-class))))
 
 (defun designator-condition-p (designator)
-  (unless (listp designator)
+  (when (symbolp designator)
     (ignore-errors (subtypep designator 'condition))))
 
 (defun designator-class-p (designator)
-  (and (not (listp designator))
-       (not (designator-structure-p designator))
-       (not (designator-condition-p designator))
-       (find-class designator NIL)))
+  (ignore-errors
+   (and (not (listp designator))
+        (not (designator-structure-p designator))
+        (not (designator-condition-p designator))
+        (find-class designator NIL))))
 
 (defun designator-constant-p (designator)
-  (unless (listp designator)
+  (when (symbolp designator)
     (constantp designator)))

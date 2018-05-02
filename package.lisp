@@ -28,7 +28,6 @@
   (:use #:cl)
   ;; base-types.lisp
   (:export
-   #:global-definition
    #:type
    #:variable
    #:package
@@ -62,9 +61,14 @@
    #:source-location
    #:callable
    #:arguments
+   #:global-definition
    #:definition-resolver
    #:remove-definition-resolver
-   #:define-definition-resolver)
+   #:define-definition-resolver
+   #:apropos-definitions
+   #:define-simple-definition-resolver
+   #:define-simple-object-lookup
+   #:define-simple-documentation-lookup)
   ;;; Extra
   ;; sbcl.lisp
   (:export
