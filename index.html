@@ -1,0 +1,398 @@
+<!DOCTYPE html> <html xmlns="http://www.w3.org/1999/xhtml"> <head> <meta charset="utf-8"> <title>Definitions</title> <meta name="viewport" content="width=device-width"> <meta name="description" content="General definitions reflection library."> <meta name="author" content="Nicolas Hafner &lt;shinmera@tymoon.eu&gt;"> <style type="text/css"> body{
+          max-width: 1024px;
+          margin: 0 auto 0 auto;
+          font-family: sans-serif;
+          color: #333333;
+          font-size: 14pt;
+          padding: 5px;
+      }
+      body>header{
+          display:flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          max-width: 100%;
+          text-align: center;
+      }
+      body>header img{
+          max-width: 50%;
+      }
+      img{
+          max-width: 100%;
+          max-height: 100%;
+      }
+      code{
+          font-family: Consolas, Inconsolata, monospace;
+      }
+      a{
+          text-decoration: none;
+          color: #0055AA;
+      }
+      a img{
+          border: none;
+      }
+      #documentation{
+          text-align: justify;
+      }
+      #documentation pre{
+          margin-left: 20px;
+          overflow: auto;
+      }
+      #documentation img{
+          margin: 5px;
+      }
+      #symbol-index>ul{
+          list-style: none;
+          padding: 0;
+      }
+      #symbol-index .package>ul{
+          list-style: none;
+          padding: 0 0 0 10px;
+      }
+      #symbol-index .package .nicknames{
+          font-weight: normal;
+      }
+      #symbol-index .package h4{
+          display: inline-block;
+          margin: 0;
+      }
+      #symbol-index .package article{
+          margin: 0 0 15px 0;
+      }
+      #symbol-index .package article header{
+          font-size: 1.2em;
+          font-weight: normal;
+      }
+      #symbol-index .package .name{
+          margin-right: 5px;
+      }
+      #symbol-index .package .docstring{
+          margin: 0 0 0 15px;
+          white-space: pre-wrap;
+          font-size: 12pt;
+      }
+      @media (max-width: 800px){
+          body{font-size: 12pt;}
+      } </style> </head> <body> <header> <h1>definitions</h1> <span class="version">1.0.0</span> <p class="description">General definitions reflection library.</p> </header> <main> <article id="documentation">  <div><h2 id="about_definitions">About Definitions</h2> <p>This system implements a general definitions introspection library. It gives you the ability to retrieve definitions or bindings associated with designators such as symbols, packages, and names in general. For instance, it allows you to retrieve all function, type, variable, method, etc. definitions of a symbol.</p> <h2 id="how_to">How To</h2> <p>In order to list all discoverable definitions in a package, all you need to do is call <code><a href="#DEFINITIONS:FIND-DEFINITIONS">find-definitions</a></code> like so:</p> <pre><code>(<a href="#DEFINITIONS:FIND-DEFINITIONS">find-definitions</a> &quot;CL&quot;)
+</code></pre> <p>Each <code><a href="#DEFINITIONS:DEFINITION">definition</a></code> is associated with a <code><a href="#DEFINITIONS:DESIGNATOR">designator</a></code> that names it. Most, but not all, definitions also allow you to retrieve the <code><a href="#DEFINITIONS:OBJECT">object</a></code> that they define. If the designator is translatable to a symbol, the definition will also give you access to the <code><a href="#DEFINITIONS:SYMBOL">symbol</a></code>, <code><a href="#DEFINITIONS:NAME">name</a></code>, <code><a href="#DEFINITIONS:PACKAGE">package</a></code>, and <code><a href="#DEFINITIONS:VISIBILITY">visibility</a></code> within the package. Beyond that, you can also retrieve the associated <code><a href="#DEFINITIONS:DOCUMENTATION">documentation</a></code> and, depending on implementation support, the <code><a href="#DEFINITIONS:SOURCE-LOCATION">source-location</a></code> of the definition.</p> <p>Some subclasses of the general <code><a href="#DEFINITIONS:DEFINITION">definition</a></code>, like <code><a href="#DEFINITIONS:CALLABLE">callable</a></code> give you access to further information like the <code><a href="#DEFINITIONS:ARGUMENTS">arguments</a></code> or the <code><a href="#DEFINITIONS:QUALIFIERS">qualifiers</a></code>.</p> <p>If you would like to fuzzily search for definitions, you can use the <code><a href="#DEFINITIONS:APROPOS-DEFINITIONS">apropos-definitions</a></code> function. Do note that this will likely return very long lists of definitions for searches that aren't very long.</p> <h2 id="extending_definitions">Extending Definitions</h2> <p>Often time libraries and systems will introduce their own bindings and definitions that extend the environment. For instance, you might have a special kind of function definition that lives in its own namespace, or a particular kind of named resource. In this case it can be worthwhile to extend Definitions so that it can discover and handle information related to those definitions as well.</p> <p>Adding new definition types is a matter of subclassing <code><a href="#DEFINITIONS:DEFINITION">definition</a></code>, using <code><a href="#DEFINITIONS:DEFINE-DEFINITION-RESOLVER">define-definition-resolver</a></code> to handle the definition discovery, and adding methods to the relevant generic functions to provide the needed information.</p> <p>Typically your definition will be a <code><a href="#DEFINITIONS:GLOBAL-DEFINITION">global-definition</a></code>, and thus be tied to a simple designator like a symbol that will find the definition in a global namespace. The <code><a href="#DEFINITIONS:GLOBAL-DEFINITION">global-definition</a></code> provides default implementations for <code><a href="#DEFINITIONS:SYMBOL">symbol</a></code>, <code><a href="#DEFINITIONS:NAME">name</a></code>, <code><a href="#DEFINITIONS:PACKAGE">package</a></code>, and <code><a href="#DEFINITIONS:VISIBILITY">visibility</a></code>, removing much of the need for duplicating those methods.</p> <pre><code>(<a href="http://l1sp.org/cl/defclass">defclass</a> page (<a href="#DEFINITIONS:GLOBAL-DEFINITION">global-definition</a>) ())
+
+(<a href="#DEFINITIONS:DEFINE-SIMPLE-TYPE-MAP">define-simple-type-map</a> page my-package:page)
+(<a href="#DEFINITIONS:DEFINE-SIMPLE-DEFINITION-RESOLVER">define-simple-definition-resolver</a> page my-package:find-page)
+(<a href="#DEFINITIONS:DEFINE-SIMPLE-OBJECT-LOOKUP">define-simple-object-lookup</a> page my-package:find-page)
+(<a href="#DEFINITIONS:DEFINE-SIMPLE-DOCUMENTATION-LOOKUP">define-simple-documentation-lookup</a> page my-package:page)
+</code></pre> <p>The above will define a new definition type, <code>page</code>, and add the missing methods to it, provided that the documentation is already handled through <code><a href="http://l1sp.org/cl/documentation">cl:documentation</a></code> on the <code>my-package:page</code> type, and that <code>my-package:find-page</code> returns the page object associated with a name. From there on out, <code><a href="#DEFINITIONS:FIND-DEFINITIONS">find-definitions</a></code> will pick up <code>page</code> definitions as well. </p> <p>Depending on how your implementation tracks source information, and how well it is supported by this library, <code>source-information</code> might work automatically on new definition types once a suitable <code><a href="#DEFINITIONS:OBJECT">object</a></code> method is in place. However, in general, it is not guaranteed that source tracking will be provided, let alone for definitions that are not standard.</p> <h2 id="currently_supported_implementations">Currently Supported Implementations</h2> <p>Some parts of this library such as the discovery of certain definitions, retrieval of some object bindings, and the source location tracking are implementation-specific. As such, in order to be complete, implementation-specific parts need to be written. Currently the following implementations are <em>fully</em> supported. Note that even if your implementation is not listed here, this library may still be useful.</p> <ul> <li>SBCL</li> <li>CCL</li> </ul> </div>  </article> <article id="copyright">  <h2>Copyright</h2> <span>definitions</span> is licensed under the <span><a href="https://tldrlegal.com/search?q=Artistic">Artistic</a></span> license.  © <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span> .  This library can be obtained on <a href="https://github.com/Shinmera/definitions">https://github.com/Shinmera/definitions</a>.  </article>  <article id="symbol-index"> <h2>Package Index</h2> <ul><li class="package"> <h3> <a name="DEFINITIONS" href="#DEFINITIONS">DEFINITIONS</a> <span class="nicknames">(ORG.SHIRAKUMO.DEFINITIONS)</span> </h3> <ul><li> <a name="DEFINITIONS:ALIEN-TYPE"> </a> <article id="CLASS DEFINITIONS:ALIEN-TYPE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AALIEN-TYPE">ALIEN-TYPE</a></code></h4>  </header> <div class="docstring"><pre>Alien-type definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:CALLABLE"> </a> <article id="CLASS DEFINITIONS:CALLABLE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ACALLABLE">CALLABLE</a></code></h4>  </header> <div class="docstring"><pre>Superclass for all definitions that represent objects that may be called.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a>
+See <a href="#DEFINITIONS:ARGUMENTS">ARGUMENTS</a></pre></div> </article> </li><li> <a name="DEFINITIONS:CLASS"> </a> <article id="CLASS DEFINITIONS:CLASS"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ACLASS">CLASS</a></code></h4>  </header> <div class="docstring"><pre>Class definition representation.
+
+Note that this does not include conditions, or structures.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:COMPILER-MACRO"> </a> <article id="CLASS DEFINITIONS:COMPILER-MACRO"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ACOMPILER-MACRO">COMPILER-MACRO</a></code></h4>  </header> <div class="docstring"><pre>Compiler-macro definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:CONDITION"> </a> <article id="CLASS DEFINITIONS:CONDITION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ACONDITION">CONDITION</a></code></h4>  </header> <div class="docstring"><pre>Condition definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:CONSTANT"> </a> <article id="CLASS DEFINITIONS:CONSTANT"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ACONSTANT">CONSTANT</a></code></h4>  </header> <div class="docstring"><pre>Constant definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DECLARATION"> </a> <article id="CLASS DEFINITIONS:DECLARATION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ADECLARATION">DECLARATION</a></code></h4>  </header> <div class="docstring"><pre>Declaration definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINITION"> </a> <article id="CLASS DEFINITIONS:DEFINITION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ADEFINITION">DEFINITION</a></code></h4>  </header> <div class="docstring"><pre>Base class for all definitions.
+
+Any definition type MUST subclass this class.
+
+See <a href="#DEFINITIONS:DESIGNATOR">DESIGNATOR</a>
+See <a href="#DEFINITIONS:OBJECT">OBJECT</a>
+See <a href="#DEFINITIONS:SYMBOL">SYMBOL</a>
+See <a href="#DEFINITIONS:NAME">NAME</a>
+See <a href="#DEFINITIONS:PACKAGE">PACKAGE</a>
+See <a href="#DEFINITIONS:TYPE">TYPE</a>
+See <a href="#DEFINITIONS:VISIBILITY">VISIBILITY</a>
+See <a href="#DEFINITIONS:DOCUMENTATION">DOCUMENTATION</a>
+See <a href="#DEFINITIONS:SOURCE-LOCATION">SOURCE-LOCATION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:FUNCTION"> </a> <article id="CLASS DEFINITIONS:FUNCTION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AFUNCTION">FUNCTION</a></code></h4>  </header> <div class="docstring"><pre>Function definition representation.
+
+Note that this does not include macros, compiler-macros, setf-
+expanders, or methods.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:GENERIC-FUNCTION"> </a> <article id="CLASS DEFINITIONS:GENERIC-FUNCTION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AGENERIC-FUNCTION">GENERIC-FUNCTION</a></code></h4>  </header> <div class="docstring"><pre>Generic-function definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:GLOBAL-DEFINITION"> </a> <article id="CLASS DEFINITIONS:GLOBAL-DEFINITION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION">GLOBAL-DEFINITION</a></code></h4>  </header> <div class="docstring"><pre>Superclass for global definitions reachable by a simple designator.
+
+This class provides standard implementations for
+OBJECT, SYMBOL, NAME, PACKAGE, VISIBILITY, DOCUMENTATION, and
+SOURCE-LOCATION. This means that all that's necessary to reach
+compliance for a new subtype of GLOBAL-DEFINITION is the
+implementation of an appropriate TYPE method.
+
+However, specific implementations of the other functions,
+particularly OBJECT, and DOCUMENTATION are usually needed in
+order to make all the information available.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a>
+See <a href="#DEFINITIONS:DESIGNATOR">DESIGNATOR</a></pre></div> </article> </li><li> <a name="DEFINITIONS:IR1-CONVERT"> </a> <article id="CLASS DEFINITIONS:IR1-CONVERT"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AIR1-CONVERT">IR1-CONVERT</a></code></h4>  </header> <div class="docstring"><pre>IR1-Convert definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:MACRO"> </a> <article id="CLASS DEFINITIONS:MACRO"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AMACRO">MACRO</a></code></h4>  </header> <div class="docstring"><pre>Macro definition representation.
+
+Note that this does not include compiler-macros, setf-expanders,
+or symbol-macros.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:METHOD"> </a> <article id="CLASS DEFINITIONS:METHOD"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AMETHOD">METHOD</a></code></h4>  </header> <div class="docstring"><pre>Method definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#DEFINITIONS:QUALIFIERS">QUALIFIERS</a>
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:METHOD-COMBINATION"> </a> <article id="CLASS DEFINITIONS:METHOD-COMBINATION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AMETHOD-COMBINATION">METHOD-COMBINATION</a></code></h4>  </header> <div class="docstring"><pre>Method-combination definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:OPTIMIZER"> </a> <article id="CLASS DEFINITIONS:OPTIMIZER"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AOPTIMIZER">OPTIMIZER</a></code></h4>  </header> <div class="docstring"><pre>Optimizer definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:PACKAGE"> </a> <article id="CLASS DEFINITIONS:PACKAGE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3APACKAGE">PACKAGE</a></code></h4>  </header> <div class="docstring"><pre>Package definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SETF-EXPANDER"> </a> <article id="CLASS DEFINITIONS:SETF-EXPANDER"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ASETF-EXPANDER">SETF-EXPANDER</a></code></h4>  </header> <div class="docstring"><pre>Setf-expander definition representation.
+
+Note that this is not discoverable portably.
+Note that this does not include functions with a (SETF ..)
+designator.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SOURCE-TRANSFORM"> </a> <article id="CLASS DEFINITIONS:SOURCE-TRANSFORM"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ASOURCE-TRANSFORM">SOURCE-TRANSFORM</a></code></h4>  </header> <div class="docstring"><pre>Source-transform definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SPECIAL-VARIABLE"> </a> <article id="CLASS DEFINITIONS:SPECIAL-VARIABLE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ASPECIAL-VARIABLE">SPECIAL-VARIABLE</a></code></h4>  </header> <div class="docstring"><pre>Special variable definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:STRUCTURE"> </a> <article id="CLASS DEFINITIONS:STRUCTURE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ASTRUCTURE">STRUCTURE</a></code></h4>  </header> <div class="docstring"><pre>Structure definition representation.
+
+Note that this may not include structures that are defined
+as :VECTOR types.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SYMBOL-MACRO"> </a> <article id="CLASS DEFINITIONS:SYMBOL-MACRO"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ASYMBOL-MACRO">SYMBOL-MACRO</a></code></h4>  </header> <div class="docstring"><pre>Symbol-macro definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:TRANSFORM"> </a> <article id="CLASS DEFINITIONS:TRANSFORM"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ATRANSFORM">TRANSFORM</a></code></h4>  </header> <div class="docstring"><pre>Transform definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:TYPE"> </a> <article id="CLASS DEFINITIONS:TYPE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ATYPE">TYPE</a></code></h4>  </header> <div class="docstring"><pre>Superclass that represents type definitions.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:TYPE-DEFINITION"> </a> <article id="CLASS DEFINITIONS:TYPE-DEFINITION"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3ATYPE-DEFINITION">TYPE-DEFINITION</a></code></h4>  </header> <div class="docstring"><pre>Type definition representation.
+
+Note that this is not discoverable portably.
+Note that this is only for TYPEDEF-defined types.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:VARIABLE"> </a> <article id="CLASS DEFINITIONS:VARIABLE"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AVARIABLE">VARIABLE</a></code></h4>  </header> <div class="docstring"><pre>Superclass that represents variable definitions.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:VOP"> </a> <article id="CLASS DEFINITIONS:VOP"> <header class="class"> <span class="type">class</span>  <h4 class="name"><code><a href="#CLASS%20DEFINITIONS%3AVOP">VOP</a></code></h4>  </header> <div class="docstring"><pre>VOP definition representation.
+
+See <a href="#DEFINITIONS:GLOBAL-DEFINITION">GLOBAL-DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINITION-RESOLVER"> </a> <article id="ACCESSOR DEFINITIONS:DEFINITION-RESOLVER"> <header class="accessor"> <span class="type">accessor</span>  <code>(</code><h4 class="name"><code><a href="#ACCESSOR%20DEFINITIONS%3ADEFINITION-RESOLVER">DEFINITION-RESOLVER</a></code></h4> <code class="qualifiers"></code> <code class="arguments">NAME &amp;OPTIONAL (ERRORP T)</code><code>)</code>  </header> <div class="docstring"><pre>Accessor to the definition resolver of the given name.
+
+A definition resolver is a function that accepts a single
+argument, a designator, and returns a list of DEFINITION
+instances that are named by this designator.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a>
+See <a href="#DEFINITIONS:REMOVE-DEFINITION-RESOLVER">REMOVE-DEFINITION-RESOLVER</a>
+See <a href="#DEFINITIONS:DEFINE-DEFINITION-RESOLVER">DEFINE-DEFINITION-RESOLVER</a>
+See <a href="#DEFINITIONS:DEFINE-SIMPLE-DEFINITION-RESOLVER">DEFINE-SIMPLE-DEFINITION-RESOLVER</a></pre></div> </article> </li><li> <a name="DEFINITIONS:APROPOS-DEFINITIONS"> </a> <article id="FUNCTION DEFINITIONS:APROPOS-DEFINITIONS"> <header class="function"> <span class="type">function</span>  <code>(</code><h4 class="name"><code><a href="#FUNCTION%20DEFINITIONS%3AAPROPOS-DEFINITIONS">APROPOS-DEFINITIONS</a></code></h4> <code class="qualifiers"></code> <code class="arguments">STRING</code><code>)</code>  </header> <div class="docstring"><pre>Fuzzily search for definitions matching the given string.
+
+The search is fuzzy in the following way:
+If a symbol's name contains the search string regardless of case,
+then the symbol is considered to match, and all definitions
+designated by the symbol are included in the
+result.
+
+See <a href="#DEFINITIONS:FIND-DEFINITIONS">FIND-DEFINITIONS</a></pre></div> </article> </li><li> <a name="DEFINITIONS:REMOVE-DEFINITION-RESOLVER"> </a> <article id="FUNCTION DEFINITIONS:REMOVE-DEFINITION-RESOLVER"> <header class="function"> <span class="type">function</span>  <code>(</code><h4 class="name"><code><a href="#FUNCTION%20DEFINITIONS%3AREMOVE-DEFINITION-RESOLVER">REMOVE-DEFINITION-RESOLVER</a></code></h4> <code class="qualifiers"></code> <code class="arguments">NAME</code><code>)</code>  </header> <div class="docstring"><pre>Removes the definition resolver of the given name.
+
+See <a href="#DEFINITIONS:DEFINITION-RESOLVER">DEFINITION-RESOLVER</a></pre></div> </article> </li><li> <a name="DEFINITIONS:ARGUMENTS"> </a> <article id="GENERIC DEFINITIONS:ARGUMENTS"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3AARGUMENTS">ARGUMENTS</a></code></h4> <code class="qualifiers"></code> <code class="arguments">CALLABLE</code><code>)</code>  </header> <div class="docstring"><pre>Returns the lambda-list of the callable.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the lambda-list is available. In that
+case, the primary value is always NIL.</pre></div> </article> </li><li> <a name="DEFINITIONS:DESIGNATOR"> </a> <article id="GENERIC DEFINITIONS:DESIGNATOR"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ADESIGNATOR">DESIGNATOR</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the designator that names this definition.
+
+Note that a single designator may name many definitions.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DOCUMENTATION"> </a> <article id="GENERIC DEFINITIONS:DOCUMENTATION"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ADOCUMENTATION">DOCUMENTATION</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the documentation string associated with this definition.
+
+This may be NIL if no documentation is defined or known.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the docstring is available. In that case,
+the primary value is always NIL.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:FIND-DEFINITIONS"> </a> <article id="GENERIC DEFINITIONS:FIND-DEFINITIONS"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3AFIND-DEFINITIONS">FIND-DEFINITIONS</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DESIGNATOR</code><code>)</code>  </header> <div class="docstring"><pre>Find applicable definitions for the given designator.
+
+Depending on the type of the designator, the following happens:
+  PACKAGE --- FIND-DEFINITIONS is called for each symbol in the
+              package, regardless of whether the symbol was
+              inherited, or internal.
+  STRING  --- FIND-DEFINITIONS is called on the package returned
+              by FIND-PACKAGE on the designator. If no package
+              is found, an error is signalled.
+  T       --- All definitions found by the definition resolvers
+              for the designator are returned as a single list.
+
+This function should not error except for the above mentioned
+case when a string is passed that does not name a package.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a>
+See <a href="#DEFINITIONS:APROPOS-DEFINITIONS">APROPOS-DEFINITIONS</a>
+See <a href="#DEFINITIONS:DEFINITION-RESOLVER">DEFINITION-RESOLVER</a></pre></div> </article> </li><li> <a name="DEFINITIONS:NAME"> </a> <article id="GENERIC DEFINITIONS:NAME"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ANAME">NAME</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the name of this definition as a string.
+
+For certain definitions this may be the same as the DESIGNATOR,
+or merely a simple mapping of the designator to a string.
+
+This function may return NIL if it is not applicable to reduce
+the designator to a string name.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:OBJECT"> </a> <article id="GENERIC DEFINITIONS:OBJECT"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3AOBJECT">OBJECT</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the object that this definition defines.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the object is available. In that case,
+the primary value is always NIL.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:PACKAGE"> </a> <article id="GENERIC DEFINITIONS:PACKAGE"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3APACKAGE">PACKAGE</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the package this definition is tied to.
+
+Typically this can be derived from the SYMBOL of the definition.
+This function is primarily provided for completeness and ease
+of use.
+
+This function may return NIL if it is not applicable for the
+definition to be tied to a particular package.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:QUALIFIERS"> </a> <article id="GENERIC DEFINITIONS:QUALIFIERS"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3AQUALIFIERS">QUALIFIERS</a></code></h4> <code class="qualifiers"></code> <code class="arguments">METHOD</code><code>)</code>  </header> <div class="docstring"><pre>Returns the list of qualifiers used for the method.
+
+See <a href="#DEFINITIONS:METHOD">METHOD</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SOURCE-LOCATION"> </a> <article id="GENERIC DEFINITIONS:SOURCE-LOCATION"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ASOURCE-LOCATION">SOURCE-LOCATION</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the source location information of this definition.
+
+A successful return will have the form of a plist with the
+following keys and values:
+
+  :FILE    --- A pathname to the file in which the definition
+               was made. This pathname may be logical.
+  :FORM    --- The number of the toplevel form in which this
+               definition was made. This means that in order
+               to read the definition, this number of calls to
+               READ must be made. This value may be NIL.
+  :OFFSET  --- The offset in characters at which this
+               definition was made. If :FORM is given, this
+               offset is within the form that is indicated by
+               the :FORM value. Otherwise, this offset is in
+               terms of FILE-POSITION from the beginning of
+               the file.
+
+This may be NIL if no source location is available or known.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the source location is available. In
+that case, the primary value is always NIL.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:SYMBOL"> </a> <article id="GENERIC DEFINITIONS:SYMBOL"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ASYMBOL">SYMBOL</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the symbol naming this definition.
+
+This is different from the designator in the sense that the
+designator may be a compound expression that can be mapped to
+a single symbol. For instance, the (SETF FOO) designator would
+be reduced to the symbol FOO.
+
+This function may return NIL if it is not applicable to reduce
+the designator to a symbol.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:TYPE"> </a> <article id="GENERIC DEFINITIONS:TYPE"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3ATYPE">TYPE</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the type of the object the definition defines.
+
+For cases where the definition can be instantiated, this is
+equivalent to calling TYPE-OF on an instance of such a
+definition.
+
+This function may NOT return NIL, and must always return some
+symbol that can be used to identify the type of the definition.
+
+Note that this symbol is not necessarily unique to the type of
+the definition, meaning multiple definitions may share the same
+name.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:VISIBILITY"> </a> <article id="GENERIC DEFINITIONS:VISIBILITY"> <header class="generic"> <span class="type">generic</span>  <code>(</code><h4 class="name"><code><a href="#GENERIC%20DEFINITIONS%3AVISIBILITY">VISIBILITY</a></code></h4> <code class="qualifiers"></code> <code class="arguments">DEFINITION</code><code>)</code>  </header> <div class="docstring"><pre>Returns the visibility of the definition from its package.
+
+Returns one of the symbol status designators:
+  :INTERNAL :EXTERNAL :INHERITED NIL
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="http://l1sp.org/cl/find-symbol">CL:FIND-SYMBOL</a>
+See <a href="#DEFINITIONS:DEFINITION">DEFINITION</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINE-DEFINITION-RESOLVER"> </a> <article id="MACRO DEFINITIONS:DEFINE-DEFINITION-RESOLVER"> <header class="macro"> <span class="type">macro</span>  <code>(</code><h4 class="name"><code><a href="#MACRO%20DEFINITIONS%3ADEFINE-DEFINITION-RESOLVER">DEFINE-DEFINITION-RESOLVER</a></code></h4> <code class="qualifiers"></code> <code class="arguments">NAME ARGS &amp;BODY BODY</code><code>)</code>  </header> <div class="docstring"><pre>Define a new definition resolver.
+
+This is mostly provided as a shorthand.
+
+See <a href="#DEFINITIONS:DEFINITION-RESOLVER">DEFINITION-RESOLVER</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINE-SIMPLE-DEFINITION-RESOLVER"> </a> <article id="MACRO DEFINITIONS:DEFINE-SIMPLE-DEFINITION-RESOLVER"> <header class="macro"> <span class="type">macro</span>  <code>(</code><h4 class="name"><code><a href="#MACRO%20DEFINITIONS%3ADEFINE-SIMPLE-DEFINITION-RESOLVER">DEFINE-SIMPLE-DEFINITION-RESOLVER</a></code></h4> <code class="qualifiers"></code> <code class="arguments">CLASS LOOKUP-FUNCTION &amp;BODY BODY</code><code>)</code>  </header> <div class="docstring"><pre>A simpler form to define a definition resolver.
+
+This comes in two forms, short-form and long-form:
+
+SHORT-FORM
+  In this form, only LOOKUP-FUNCTION is provided, and must be a
+  symbol that names the test-function.
+
+LONG-FORM
+  In this form, LOOKUP-FUNCTION is a lambda-list, and BODY is
+  the forms that make up the test-function.
+
+If the test-function returns successfully and returns non-NIL,
+then the definition resolver returns a list with a single
+instance of the given CLASS, providing the designator as the
+initarg for :DESIGNATOR.
+
+The name of the definition resolver is set to CLASS.
+
+See DFINE-DEFINITION-RESOLVER</pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINE-SIMPLE-DOCUMENTATION-LOOKUP"> </a> <article id="MACRO DEFINITIONS:DEFINE-SIMPLE-DOCUMENTATION-LOOKUP"> <header class="macro"> <span class="type">macro</span>  <code>(</code><h4 class="name"><code><a href="#MACRO%20DEFINITIONS%3ADEFINE-SIMPLE-DOCUMENTATION-LOOKUP">DEFINE-SIMPLE-DOCUMENTATION-LOOKUP</a></code></h4> <code class="qualifiers"></code> <code class="arguments">CLASS DOCUMENTATION-TYPE</code><code>)</code>  </header> <div class="docstring"><pre>A simpler form to define the documentation lookup.
+
+This simply delegates the lookup to CL:DOCUMENTATION, using the
+provided arguments. If the DOCUMENTATION-TYPE is T, then 
+CL:DOCUMENTATION is called with the OBJECT of the definition.
+Otherwise, CL:DOCUMENTATION is called with the DESIGNATOR of the
+definition and the provided DOCUMENTATION-TYPE.
+
+See <a href="#DEFINITIONS:DOCUMENTATION">DOCUMENTATION</a>
+See <a href="http://l1sp.org/cl/documentation">CL:DOCUMENTATION</a>
+See <a href="#DEFINITIONS:OBJECT">OBJECT</a>
+See <a href="#DEFINITIONS:DESIGNATOR">DESIGNATOR</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINE-SIMPLE-OBJECT-LOOKUP"> </a> <article id="MACRO DEFINITIONS:DEFINE-SIMPLE-OBJECT-LOOKUP"> <header class="macro"> <span class="type">macro</span>  <code>(</code><h4 class="name"><code><a href="#MACRO%20DEFINITIONS%3ADEFINE-SIMPLE-OBJECT-LOOKUP">DEFINE-SIMPLE-OBJECT-LOOKUP</a></code></h4> <code class="qualifiers"></code> <code class="arguments">CLASS LOOKUP-FUNCTION &amp;BODY BODY</code><code>)</code>  </header> <div class="docstring"><pre>A simpler form to define the OBJECT method.
+
+This comes in two forms, short-form and long-form:
+
+SHORT-FORM
+  In this form, only LOOKUP-FUNCTION is provided, and must be
+  a symbol that names the lookup-function.
+
+LONG-FORM
+  In this form, LOOKUP-FUNCTION is a lambda-list, and BODY is
+  the forms that make up the lookup-function.
+
+The lookup-function must accept a single argument, the
+definition instance, and must either return the object that the
+definition defines, or two values: NIL and :UNKNOWN.
+
+See <a href="#DEFINITIONS:OBJECT">OBJECT</a></pre></div> </article> </li><li> <a name="DEFINITIONS:DEFINE-SIMPLE-TYPE-MAP"> </a> <article id="MACRO DEFINITIONS:DEFINE-SIMPLE-TYPE-MAP"> <header class="macro"> <span class="type">macro</span>  <code>(</code><h4 class="name"><code><a href="#MACRO%20DEFINITIONS%3ADEFINE-SIMPLE-TYPE-MAP">DEFINE-SIMPLE-TYPE-MAP</a></code></h4> <code class="qualifiers"></code> <code class="arguments">CLASS TYPE</code><code>)</code>  </header> <div class="docstring"><pre>A simpler form to define the type lookup.
+
+This simply defines a method on TYPE for the given class,
+returning the TYPE symbol.
+
+See <a href="#DEFINITIONS:TYPE">TYPE</a></pre></div> </article> </li></ul> </li></ul> </article>  </main> </body> </html> 
