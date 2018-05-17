@@ -23,7 +23,13 @@
     (if provided list :unknown)))
 
 (defmethod arguments ((method method))
-  (ccl:method-lambda-list (object method)))
+  (loop for rest on (ccl:method-lambda-list (object method))
+        for spec in (ccl:method-specializers (object method))
+        collect (etypecase spec
+                  (ccl:eql-specializer `(eql ,(ccl:eql-specializer-object spec)))
+                  (cl:class (class-name spec)))
+        into arguments
+        finally (return (append arguments rest))))
 
 (defmethod definition-source ((definition definition))
   (let ((object (object definition)))

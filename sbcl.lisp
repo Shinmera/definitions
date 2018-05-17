@@ -28,7 +28,16 @@
   (sb-introspect:function-lambda-list (object callable)))
 
 (defmethod arguments ((method method))
-  (sb-mop:method-lambda-list (object method)))
+  (loop for rest on (sb-mop:method-lambda-list (object method))
+        for spec in (sb-mop:method-specializers (object method))
+        collect (etypecase spec
+                  (sb-mop:eql-specializer `(eql ,(sb-mop:eql-specializer-object spec)))
+                  (cl:class (class-name spec)))
+        into arguments
+        finally (return (append arguments rest))))
+
+(defmethod arguments ((type type))
+  (sb-introspect:deftype-lambda-list (symbol type)))
 
 (defmethod definition-source ((definition definition))
   (transform-definition-source
