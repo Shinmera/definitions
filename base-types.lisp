@@ -28,8 +28,20 @@
 
 ;; FIXME: Add introspection for method combination, methods.
 
+(defmethod initialize-instance :around ((def package) &rest args &key package designator)
+  (macrolet ((c (&rest args)
+               `(apply #'call-next-method def ,@args args)))
+    (cond ((null package)
+           (c :package (or (find-package designator)
+                           (error "No such package ~s." designator))
+              :designator designator))
+          ((null designator)
+           (c :package package :designator (package-name designator)))
+          (T
+           (c)))))
+
 (defmethod name ((package package))
-  (package-name (package  package)))
+  (package-name (package package)))
 
 (defmethod symbol ((package package))
   (make-symbol (name package)))
