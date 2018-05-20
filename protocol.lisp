@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.definitions)
 
-(defgeneric find-definitions (designator))
+(defgeneric find-definitions (designator &optional local-package))
 
 (defclass definition ()
   ())
@@ -34,8 +34,13 @@
   (values NIL :unknown))
 
 (defclass global-definition (definition)
-  ((designator :initarg :designator :reader designator))
+  ((designator :initarg :designator :reader designator)
+   (package :initarg :package :reader package))
   (:default-initargs :designator (error "DESIGNATOR required.")))
+
+(defmethod initialize-instance :after ((definition global-definition) &key package)
+  (unless package
+    (setf (slot-value definition 'package) (symbol-package (symbol definition)))))
 
 (defmethod object ((definition global-definition))
   (values NIL :unknown))
@@ -51,9 +56,6 @@
 
 (defmethod name ((definition global-definition))
   (symbol-name (symbol definition)))
-
-(defmethod package ((definition global-definition))
-  (symbol-package (symbol definition)))
 
 (defmethod visibility ((definition global-definition))
   (nth-value 1 (find-symbol (name definition) (package definition))))
@@ -81,35 +83,37 @@
                 (lambda ,args ,@body))
           ',name))
 
-(defmethod find-definitions (designator)
+(defmethod find-definitions (designator &optional package)
   (loop for resolver being the hash-values of *definition-resolvers*
-        append (funcall resolver designator)))
+        append (funcall resolver designator package)))
 
 ;; FIXME: Generify the expansion of symbols to designators.
 
-(defmethod find-definitions ((package cl:package))
+(defmethod find-definitions ((package cl:package) &optional (local NIL local-p))
   (loop for symbol being the symbols of package
-        append (append (find-definitions symbol)
-                       (find-definitions `(setf ,symbol)))))
+        append (append (find-definitions symbol (if local-p local package))
+                       (find-definitions `(setf ,symbol) (if local-p local package)))))
 
-(defmethod find-definitions ((string string))
-  (find-definitions (or (find-package string)
-                        (error "No package named ~s available." string))))
+(defmethod find-definitions ((string string) &optional (local NIL local-p))
+  (let ((package (or (find-package string)
+                     (error "No package named ~s available." string))))
+    (find-definitions package (if local-p local package))))
 
 (defun apropos-definitions (string)
   (loop for package in (list-all-packages)
-        append (loop for symbol being the symbols of *package*
+        append (loop for symbol being the symbols of package
                      when (search string (symbol-name symbol) :test #'char-equal)
-                     append (append (find-definitions symbol)
-                                    (find-definitions `(setf ,symbol))))))
+                     append (append (find-definitions symbol package)
+                                    (find-definitions `(setf ,symbol) package)))))
 
 (defmacro define-simple-definition-resolver (class lookup-function &body body)
-  `(define-definition-resolver ,class (,class)
-     (when (ignore-errors ,(if body
-                               `(destructuring-bind ,lookup-function ,class
-                                  ,@body)
-                               `(,lookup-function ,class)))
-       (list (make-instance ',class :designator ,class)))))
+  (let ((package (gensym "PACKAGE")))
+    `(define-definition-resolver ,class (,class ,package)
+       (when (ignore-errors ,(if body
+                                 `(destructuring-bind ,lookup-function ,class
+                                    ,@body)
+                                 `(,lookup-function ,class)))
+         (list (make-instance ',class :designator ,class :package ,package))))))
 
 (defmacro define-simple-object-lookup (class lookup-function &body body)
   `(defmethod object ((,class ,class))

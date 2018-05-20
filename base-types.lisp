@@ -8,7 +8,8 @@
 
 (defclass type (global-definition) ())
 (defclass variable (global-definition) ())
-(defclass package (global-definition) ())
+(defclass package (global-definition)
+  ((package :reader object)))
 (defclass function (global-definition callable) ())
 (defclass macro (global-definition callable) ())
 (defclass compiler-macro (global-definition callable) ())
@@ -26,6 +27,15 @@
 (defclass symbol-macro (variable) ())
 
 ;; FIXME: Add introspection for method combination, methods.
+
+(defmethod name ((package package))
+  (package-name (package  package)))
+
+(defmethod symbol ((package package))
+  (make-symbol (name package)))
+
+(defmethod visibility ((package package))
+  :external)
 
 (defgeneric qualifiers (method))
 

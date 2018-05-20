@@ -24,6 +24,10 @@ Depending on the type of the designator, the following happens:
 This function should not error except for the above mentioned
 case when a string is passed that does not name a package.
 
+The optional argument designates the package that the global
+definitions should be relative to. This is mostly relevant for
+the visibility of the definition.
+
 See DEFINITION
 See APROPOS-DEFINITIONS
 See DEFINITION-RESOLVER")
@@ -228,8 +232,8 @@ See REMOVE-DEFINITION-RESOLVER")
   (cl:function definition-resolver
     "Accessor to the definition resolver of the given name.
 
-A definition resolver is a function that accepts a single
-argument, a designator, and returns a list of DEFINITION
+A definition resolver is a function that accepts two arguments, 
+a designator and a package, and returns a list of DEFINITION
 instances that are named by this designator.
 
 See DEFINITION

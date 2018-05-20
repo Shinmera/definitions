@@ -73,10 +73,10 @@
 (define-simple-definition-resolver setf-expander (designator)
   (sb-int:info :setf :expander designator))
 
-(define-definition-resolver method (designator)
+(define-definition-resolver method (designator package)
   (when (designator-generic-function-p designator)
     (loop for method in (sb-mop:generic-function-methods (fdefinition designator))
-          collect (make-instance 'method :designator designator :method method))))
+          collect (make-instance 'method :designator designator :package package :method method))))
 
 (define-simple-definition-resolver method-combination (designator)
   (find-method #'sb-mop:find-method-combination
@@ -109,7 +109,7 @@
 
 (define-simple-type-map optimizer sb-c:optimizer)
 
-(define-definition-resolver optimizer (designator)
+(define-definition-resolver optimizer (designator package)
   (let ((fun-info (when (symbolp designator)
                     (sb-int:info :function :info designator))))
     (when fun-info
@@ -121,9 +121,9 @@
                       sb-c::fun-info-constraint-propagate
                       sb-c::fun-info-constraint-propagate-if
                       sb-c::fun-info-call-type-deriver)))
-        (loop for (reader . name) in otypes
+        (loop for reader in otypes
               for fn = (funcall reader fun-info)
-              when fn collect (make-instance 'optimizer :designator designator :optimizer fn))))))
+              when fn collect (make-instance 'optimizer :designator designator :package package :optimizer fn))))))
 
 (define-definition-introspect-type optimizer :optimizer)
 
@@ -144,12 +144,12 @@
 
 (define-simple-type-map transform sb-c::transform)
 
-(define-definition-resolver transform (designator)
+(define-definition-resolver transform (designator package)
   (let ((fun-info (when (symbolp designator)
                     (sb-int:info :function :info designator))))
     (when fun-info
       (loop for transform in (sb-c::fun-info-transforms fun-info)
-            collect (make-instance 'transform :designator designator :transform transform)))))
+            collect (make-instance 'transform :designator designator :package package :transform transform)))))
 
 (define-definition-introspect-type transform :transform)
 
