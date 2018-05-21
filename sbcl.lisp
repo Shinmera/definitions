@@ -65,10 +65,11 @@
 
 (defun transform-definition-source (source)
   (when source
-    (list :file (sb-introspect:definition-source-pathname source)
-          :form (or (first (sb-introspect:definition-source-form-path source))
-                    (sb-introspect:definition-source-form-number source))
-          :offset (sb-introspect:definition-source-character-offset source))))
+    (let ((form (or (first (sb-introspect:definition-source-form-path source))
+                    (sb-introspect:definition-source-form-number source))))
+      (list :file (sb-introspect:definition-source-pathname source)
+            :form form
+            :offset (unless form (sb-introspect:definition-source-character-offset source))))))
 
 (define-simple-definition-resolver setf-expander (designator)
   (sb-int:info :setf :expander designator))
