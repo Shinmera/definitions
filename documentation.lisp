@@ -24,9 +24,12 @@ Depending on the type of the designator, the following happens:
 This function should not error except for the above mentioned
 case when a string is passed that does not name a package.
 
-The optional argument designates the package that the global
+The package argument designates the package that the global
 definitions should be relative to. This is mostly relevant for
 the visibility of the definition.
+
+The type argument allows you to constrain the search to
+definitions of the given type.
 
 See DEFINITION
 See APROPOS-DEFINITIONS

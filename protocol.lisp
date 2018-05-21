@@ -6,7 +6,7 @@
 
 (in-package #:org.shirakumo.definitions)
 
-(defgeneric find-definitions (designator &optional local-package))
+(defgeneric find-definitions (designator &key package type))
 
 (defclass definition ()
   ())
@@ -83,28 +83,29 @@
                 (lambda ,args ,@body))
           ',name))
 
-(defmethod find-definitions (designator &optional package)
+(defmethod find-definitions (designator &key package (type T))
   (loop for resolver being the hash-values of *definition-resolvers*
-        append (funcall resolver designator package)))
+        for definitions = (funcall resolver designator package)
+        nconc (delete-if-not (lambda (def) (typep def type)) definitions)))
 
 ;; FIXME: Generify the expansion of symbols to designators.
 
-(defmethod find-definitions ((package cl:package) &optional (local NIL local-p))
-  (loop for symbol being the symbols of package
-        append (append (find-definitions symbol (if local-p local package))
-                       (find-definitions `(setf ,symbol) (if local-p local package)))))
+(defmethod find-definitions ((search cl:package) &key (package NIL local-p) (type T))
+  (loop for symbol being the symbols of search
+        append (append (find-definitions symbol :package (if local-p package search) :type type)
+                       (find-definitions `(setf ,symbol) :package (if local-p package search) :type type))))
 
-(defmethod find-definitions ((string string) &optional (local NIL local-p))
-  (let ((package (or (find-package string)
+(defmethod find-definitions ((string string) &key (package NIL local-p) (type T))
+  (let ((search (or (find-package string)
                      (error "No package named ~s available." string))))
-    (find-definitions package (if local-p local package))))
+    (find-definitions search :package (if local-p package search) :type type)))
 
-(defun apropos-definitions (string)
+(defun apropos-definitions (string &key (type T))
   (loop for package in (list-all-packages)
         append (loop for symbol being the symbols of package
                      when (search string (symbol-name symbol) :test #'char-equal)
-                     append (append (find-definitions symbol package)
-                                    (find-definitions `(setf ,symbol) package)))))
+                     append (append (find-definitions symbol :package package :type type)
+                                    (find-definitions `(setf ,symbol) :package package :type type)))))
 
 (defmacro define-simple-definition-resolver (class lookup-function &body body)
   (let ((package (gensym "PACKAGE")))
