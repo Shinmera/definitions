@@ -39,12 +39,12 @@
 (defmethod arguments ((type type))
   (sb-introspect:deftype-lambda-list (symbol type)))
 
-(defmethod definition-source ((definition definition))
+(defmethod source-location ((definition global-definition))
   (transform-definition-source
    (sb-introspect:find-definition-source (object definition))))
 
 (defmacro define-definition-introspect-type (class type)
-  `(defmethod definition-source ((,class ,class))
+  `(defmethod source-location ((,class ,class))
      (transform-definition-source
       (first (sb-introspect:find-definition-sources-by-name (designator ,class) ,type)))))
 

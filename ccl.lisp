@@ -31,12 +31,12 @@
         into arguments
         finally (return (append arguments rest))))
 
-(defmethod definition-source ((definition definition))
+(defmethod source-location ((definition global-definition))
   (let ((object (object definition)))
     (transform-definition-sources (ccl:find-definition-sources object) :object object)))
 
 (defmacro define-definition-source-type-lookup (class type)
-  `(defmethod definition-source ((,class ,class))
+  `(defmethod source-location ((,class ,class))
      (transform-definition-sources (source-definitions-for-name (symbol ,class)) :type ',type)))
 
 (defun source-definitions-for-name (name)
