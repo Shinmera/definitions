@@ -40,6 +40,9 @@
           (T
            (c)))))
 
+(defmethod designator ((package package))
+  (symbol package))
+
 (defmethod name ((package package))
   (package-name (package package)))
 
