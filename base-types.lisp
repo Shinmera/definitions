@@ -58,7 +58,7 @@
 (define-simple-type-map variable cl:variable)
 (define-simple-type-map package cl:package)
 (define-simple-type-map function cl:function)
-(define-simple-type-map macro cl:function)
+(define-simple-type-map macro cl:macro-function)
 (define-simple-type-map compiler-macro cl:compiler-macro)
 (define-simple-type-map setf-expander cl:setf)
 (define-simple-type-map generic-function cl:generic-function)
