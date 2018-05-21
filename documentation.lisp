@@ -169,8 +169,8 @@ following keys and values:
                was made. This pathname may be logical.
   :FORM    --- The number of the toplevel form in which this
                definition was made. This means that in order
-               to read the definition, this number of calls to
-               READ must be made. This value may be NIL.
+               to read the definition, this number of calls+1
+               to READ must be made. This value may be NIL.
   :OFFSET  --- The offset in characters at which this
                definition was made. If :FORM is given, this
                offset is within the form that is indicated by
@@ -452,11 +452,11 @@ See METHOD"))
 ;; sbcl.lisp
 (docs:define-docs
   (cl:function define-definition-introspect-type
-    "Defines a DEFINITION-SOURCE method that uses FIND-DEFINITION-SOURCES-BY-NAME.
+    "Defines a SOURCE-LOCATION method that uses FIND-DEFINITION-SOURCES-BY-NAME.
 
 The supplied type-name is passed on to FIND-DEFINITION-SOURCES-BY-NAME.
 
-See DEFINITION-SOURCE
+See SOURCE-LOCATION
 See SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME")
 
   (cl:function transform-definition-source
