@@ -284,7 +284,7 @@ initarg for :DESIGNATOR.
 
 The name of the definition resolver is set to CLASS.
 
-See DFINE-DEFINITION-RESOLVER")
+See DEFINE-DEFINITION-RESOLVER")
 
   (cl:function define-simple-object-lookup
     "A simpler form to define the OBJECT method.
