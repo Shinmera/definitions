@@ -19,8 +19,12 @@
   (gethash (designator symbol-macro) ccl::*symbol-macros*))
 
 (defmethod arguments ((callable callable))
-  (multiple-value-bind (list provided) (ccl:arglist (object callable))
-    (if provided list :unknown)))
+  (multiple-value-bind (object unknown-p) (object callable)
+    (multiple-value-bind (list provided)
+        (if (eq unknown-p :unknown)
+            (ccl:arglist (designator callable))
+            (ccl:arglist object))
+      (if provided list :unknown))))
 
 (defmethod arguments ((method method))
   (loop for rest on (ccl:method-lambda-list (object method))

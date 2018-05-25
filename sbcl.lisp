@@ -25,7 +25,10 @@
                nil))
 
 (defmethod arguments ((callable callable))
-  (sb-introspect:function-lambda-list (object callable)))
+  (multiple-value-bind (object unknown-p) (object callable)
+    (if (eq unknown-p :unknown)
+        (sb-introspect:function-lambda-list (designator callable))
+        (sb-introspect:function-lambda-list object))))
 
 (defmethod arguments ((method method))
   (loop for rest on (sb-mop:method-lambda-list (object method))
