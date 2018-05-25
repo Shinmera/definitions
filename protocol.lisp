@@ -111,7 +111,7 @@
   (let ((package (gensym "PACKAGE")))
     `(define-definition-resolver ,class (,class ,package)
        (when (ignore-errors ,(if body
-                                 `(destructuring-bind ,lookup-function ,class
+                                 `(let ((,(first lookup-function) ,class))
                                     ,@body)
                                  `(,lookup-function ,class)))
          (list (make-instance ',class :designator ,class :package ,package))))))
