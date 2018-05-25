@@ -28,6 +28,7 @@
   (:use #:cl)
   ;; base-types.lisp
   (:export
+   #:special-operator
    #:type
    #:variable
    #:package

@@ -6,6 +6,7 @@
 
 (in-package #:org.shirakumo.definitions)
 
+(defclass special-operator (global-definition callable) ())
 (defclass type (global-definition) ())
 (defclass variable (global-definition) ())
 (defclass package (global-definition)
@@ -57,6 +58,7 @@
 (defmethod qualifiers ((method method))
   (method-qualifiers (object method)))
 
+(define-simple-type-map special-operator :special-operator)
 (define-simple-type-map type cl:type)
 (define-simple-type-map variable cl:variable)
 (define-simple-type-map package cl:package)
@@ -81,6 +83,11 @@
 (define-simple-object-lookup compiler-macro compiler-macro-function)
 (define-simple-object-lookup class find-class)
 
+;; It's not specified how to look up documentation for special
+;; operators, since they're neither functions nor macros, but
+;; we'll just assume as a default heuristic that the implementation
+;; is going to store the docstring here.
+(define-simple-documentation-lookup special-operator cl:function)
 (define-simple-documentation-lookup type cl:type)
 (define-simple-documentation-lookup variable cl:variable)
 (define-simple-documentation-lookup package T)
@@ -92,6 +99,7 @@
 (define-simple-documentation-lookup method-combination cl:method-combination)
 (define-simple-documentation-lookup structure cl:structure)
 
+(define-simple-definition-resolver special-operator special-operator-p)
 (define-simple-definition-resolver package find-package)
 (define-simple-definition-resolver function designator-function-p)
 (define-simple-definition-resolver macro macro-function)
