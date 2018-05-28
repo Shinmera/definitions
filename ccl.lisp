@@ -36,8 +36,10 @@
         finally (return (append arguments rest))))
 
 (defmethod source-location ((definition global-definition))
-  (let ((object (object definition)))
-    (transform-definition-sources (ccl:find-definition-sources object) :object object)))
+  (multiple-value-bind (object unknown-p) (object definition)
+    (if (eq unknown-p :unknown)
+        NIL
+        (transform-definition-sources (ccl:find-definition-sources object) :object object))))
 
 (defmacro define-definition-source-type-lookup (class type)
   `(defmethod source-location ((,class ,class))

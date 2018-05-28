@@ -43,8 +43,11 @@
   (sb-introspect:deftype-lambda-list (symbol type)))
 
 (defmethod source-location ((definition global-definition))
-  (transform-definition-source
-   (sb-introspect:find-definition-source (object definition))))
+  (multiple-value-bind (object unknown-p) (object definition)
+    (if (eq unknown-p :unknown)
+        NIL
+        (transform-definition-source
+         (sb-introspect:find-definition-source object)))))
 
 (defmacro define-definition-introspect-type (class type)
   `(defmethod source-location ((,class ,class))
