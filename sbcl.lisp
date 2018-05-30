@@ -10,7 +10,7 @@
   (sb-int:info :type :expander (designator type-definition)))
 
 (defmethod object ((setf-expander setf-expander))
-  (sb-int:info :setf :expander (designator setf-expander)))
+  (cdr (sb-int:info :setf :expander (designator setf-expander))))
 
 (defmethod object ((condition condition))
   (find-class (designator condition)))
