@@ -58,6 +58,12 @@
 (defmethod qualifiers ((method method))
   (method-qualifiers (object method)))
 
+(defmethod documentation ((definition global-definition))
+  (multiple-value-bind (object unknown-p) (object definition)
+    (if (eql :unknown unknown-p)
+        (cl:documentation (designator definition) (type definition))
+        (cl:documentation object T))))
+
 (define-simple-type-map special-operator :special-operator)
 (define-simple-type-map type cl:type)
 (define-simple-type-map variable cl:variable)
@@ -145,3 +151,6 @@
 (defun designator-constant-p (designator)
   (when (symbolp designator)
     (constantp designator)))
+
+;; FIXME: add non-local types such as labels, blocks, tags, restarts, and lexical variables
+;;        though I have no idea how discovery should be handled for those things.

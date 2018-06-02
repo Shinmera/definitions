@@ -10,7 +10,9 @@
   (sb-int:info :type :expander (designator type-definition)))
 
 (defmethod object ((setf-expander setf-expander))
-  (cdr (sb-int:info :setf :expander (designator setf-expander))))
+  (let ((expander (sb-int:info :setf :expander (designator setf-expander))))
+    ;; Sometimes they can be cons cells?
+    (if (consp expander) (cdr expander) expander)))
 
 (defmethod object ((condition condition))
   (find-class (designator condition)))

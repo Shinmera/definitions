@@ -25,6 +25,10 @@
 (defgeneric documentation (definition))
 (defgeneric source-location (definition))
 
+;; FIXME: We need other "object" or "identifier" lookups
+;;        to accommodate wrapper definitions whose source
+;;        locations might be pointed to by another object.
+
 (defclass callable (definition)
   ())
 
@@ -119,7 +123,7 @@
 (defmacro define-simple-object-lookup (class lookup-function &body body)
   `(defmethod object ((,class ,class))
      ,(if body
-          `(destructuring-bind ,lookup-function ,class
+          `(let ((,(first lookup-function) ,class))
              ,@body)
           `(,lookup-function (designator ,class)))))
 
