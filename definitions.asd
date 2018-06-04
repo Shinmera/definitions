@@ -15,8 +15,9 @@
   :components ((:file "package")
                (:file "protocol")
                (:file "base-types")
-               (:file "sbcl" :if-feature :sbcl)
                (:file "ccl" :if-feature :ccl)
+               (:file "sbcl" :if-feature :sbcl)
+               (:file "clasp" :if-feature :clasp)
                (:file "documentation"))
   :depends-on (:documentation-utils
                (:feature :sbcl (:require :sb-introspect))
