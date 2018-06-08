@@ -95,9 +95,12 @@
 ;; FIXME: Generify the expansion of symbols to designators.
 
 (defmethod find-definitions ((search cl:package) &key (package NIL local-p) (type T))
-  (loop for symbol being the symbols of search
-        append (append (find-definitions symbol :package (if local-p package search) :type type)
-                       (find-definitions `(setf ,symbol) :package (if local-p package search) :type type))))
+  (let ((symbol-cache (make-hash-table :test 'eq)))
+    (loop for symbol being the symbols of search
+          append (unless (gethash symbol symbol-cache)
+                   (setf (gethash symbol symbol-cache) T)
+                   (append (find-definitions symbol :package (if local-p package search) :type type)
+                           (find-definitions `(setf ,symbol) :package (if local-p package search) :type type))))))
 
 (defmethod find-definitions ((string string) &key (package NIL local-p) (type T))
   (let ((search (or (find-package string)
