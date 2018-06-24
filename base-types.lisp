@@ -127,19 +127,19 @@
    (and (fdefinition designator)
         (or (listp designator)
             (not (macro-function designator)))
-        (not (typep (fdefinition designator) 'standard-generic-function)))))
+        (not (typep (fdefinition designator) 'cl:standard-generic-function)))))
 
 (defun designator-generic-function-p (designator)
   (ignore-errors
-   (typep (fdefinition designator) 'standard-generic-function)))
+   (typep (fdefinition designator) 'cl:standard-generic-function)))
 
 (defun designator-structure-p (designator)
   (when (symbolp designator)
-    (ignore-errors (subtypep designator 'structure-class))))
+    (ignore-errors (subtypep designator 'cl:structure-class))))
 
 (defun designator-condition-p (designator)
   (when (symbolp designator)
-    (ignore-errors (subtypep designator 'condition))))
+    (ignore-errors (subtypep designator 'cl:condition))))
 
 (defun designator-class-p (designator)
   (ignore-errors
