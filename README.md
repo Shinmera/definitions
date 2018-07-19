@@ -35,3 +35,4 @@ Some parts of this library such as the discovery of certain definitions, retriev
 
 * SBCL
 * CCL
+* Clasp

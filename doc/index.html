@@ -1,0 +1,391 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8"> <title>Definitions</title> <style>html body{margin:0 auto 0 auto;padding:20px;max-width:1024px;font-family:sans-serif;font-size:14pt;overflow-y:scroll;}html body a{text-decoration:none;}html body a[href]{color:#0055AA;}html body a[href]:hover{color:#0088EE;}html body pre{background:#FAFAFA;border:1px solid #DDDDDD;padding:0.75em;overflow-x:auto;}html body pre >code a[href]{color:#223388;}article.system h1,article.system h2,article.system h3,article.system h4,article.system h5,article.system h6{margin:0.2em 0 0.1em 0;text-indent:1em;}article.system >header{text-align:center;}article.system >header img.logo{display:block;margin:auto;max-height:170px;}article.system >header h1{display:inline-block;text-indent:0;font-size:2.5em;}article.system >header .version{vertical-align:bottom;}article.system >header .languages{margin-top:-0.5em;text-transform:capitalize;}article.system >header .description{margin:0;}article.system >header .pages{margin-top:0.5em;font-size:1.2em;text-transform:capitalize;}article.system >header .pages a{display:inline-block;padding:0 0.2em;}article.system >section{margin:1em 0 1em 0;}article.system #index >ul{list-style:none;margin:0;padding:0;}article.system .row label{display:inline-block;min-width:6em;}article.system #system .row{display:flex;}article.system #system #dependencies{display:inline;margin:0;padding:0;}article.system #system #dependencies li{display:inline;padding:0 0.2em;}article.definition{margin:1em 0 0 0;}article.definition >header h1,article.definition >header h2,article.definition >header h3,article.definition >header h4,article.definition >header h5,article.definition >header h6{text-indent:0;display:inline-block;}article.definition >header ul{display:inline-block;list-style:none;margin:0;padding:0;}article.definition >header ul li{display:inline-block;padding:0 0.2em 0 0;}article.definition >header .visibility{display:none;}article.definition >header .visibility,article.definition >header .type{text-transform:lowercase;}article.definition >header .source-link{visibility:hidden;float:right;}article.definition >header .source-link:after{visibility:visible;content:"[SRC]";}article.definition .docstring{margin:0 0 0 1em;}article.definition .docstring pre{font-size:0.8em;white-space:pre-wrap;}.definition.package >header ul.nicknames{display:inline-block;list-style:none;margin:0;padding:0 0 0 1em;}.definition.package >header ul.nicknames li{display:inline;}.definition.package >header ul.nicknames:before{content:"(";}.definition.package >header ul.nicknames:after{content:")";}.definition.package ul.definitions{margin:0;list-style:none;padding:0 0 0 0.5em;}.definition.callable >header .name:before,.definition.type >header .name:before{content:"(";font-weight:normal;}.definition.callable >header .arguments:after,.definition.type >header .arguments:after{content:")";}.definition li>mark{background:none;border-left:0.3em solid #0088EE;padding-left:0.3em;display:block;}</style> </head> <body> <article class="system"> <header>  <h1>definitions</h1> <span class="version">1.0.0</span> <nav class="languages">  <a href="index.html">English</a>  </nav> <p class="description">General definitions reflection library.</p> <nav class="pages">  <a href="index.html">definitions</a>  </nav> </header> <section id="documentation"><h2 id="about_definitions">About Definitions</h2> <p>This system implements a general definitions introspection library. It gives you the ability to retrieve definitions or bindings associated with designators such as symbols, packages, and names in general. For instance, it allows you to retrieve all function, type, variable, method, etc. definitions of a symbol.</p> <h2 id="how_to">How To</h2> <p>In order to list all discoverable definitions in a package, all you need to do is call <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AFIND-DEFINITIONS" class="xref">find-definitions</a></code> like so:</p> <pre><code>(<a href="#GENERIC-FUNCTION%20DEFINITIONS%3AFIND-DEFINITIONS" class="xref">find-definitions</a> &quot;CL&quot;)
+</code></pre> <p>Each <code><a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">definition</a></code> is associated with a <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADESIGNATOR" class="xref">designator</a></code> that names it. Most, but not all, definitions also allow you to retrieve the <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AOBJECT" class="xref">object</a></code> that they define. If the designator is translatable to a symbol, the definition will also give you access to the <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASYMBOL" class="xref">symbol</a></code>, <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ANAME" class="xref">name</a></code>, <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3APACKAGE" class="xref">package</a></code>, and <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AVISIBILITY" class="xref">visibility</a></code> within the package. Beyond that, you can also retrieve the associated <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADOCUMENTATION" class="xref">documentation</a></code> and, depending on implementation support, the <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASOURCE-LOCATION" class="xref">source-location</a></code> of the definition.</p> <p>Some subclasses of the general <code><a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">definition</a></code>, like <code><a href="#CLASS%20DEFINITIONS%3ACALLABLE" class="xref">callable</a></code> give you access to further information like the <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AARGUMENTS" class="xref">arguments</a></code> or the <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AQUALIFIERS" class="xref">qualifiers</a></code>.</p> <p>If you would like to fuzzily search for definitions, you can use the <code><a href="#FUNCTION%20DEFINITIONS%3AAPROPOS-DEFINITIONS" class="xref">apropos-definitions</a></code> function. Do note that this will likely return very long lists of definitions for searches that aren't very long.</p> <h2 id="extending_definitions">Extending Definitions</h2> <p>Often time libraries and systems will introduce their own bindings and definitions that extend the environment. For instance, you might have a special kind of function definition that lives in its own namespace, or a particular kind of named resource. In this case it can be worthwhile to extend Definitions so that it can discover and handle information related to those definitions as well.</p> <p>Adding new definition types is a matter of subclassing <code><a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">definition</a></code>, using <code><a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-DEFINITION-RESOLVER" class="xref">define-definition-resolver</a></code> to handle the definition discovery, and adding methods to the relevant generic functions to provide the needed information.</p> <p>Typically your definition will be a <code><a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">global-definition</a></code>, and thus be tied to a simple designator like a symbol that will find the definition in a global namespace. The <code><a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">global-definition</a></code> provides default implementations for <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASYMBOL" class="xref">symbol</a></code>, <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3ANAME" class="xref">name</a></code>, <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3APACKAGE" class="xref">package</a></code>, and <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AVISIBILITY" class="xref">visibility</a></code>, removing much of the need for duplicating those methods.</p> <pre><code>(defclass page (global-definition) ())
+
+(define-simple-type-map page my-package:page)
+(define-simple-definition-resolver page my-package:find-page)
+(define-simple-object-lookup page my-package:find-page)
+(define-simple-documentation-lookup page my-package:page)
+</code></pre> <p>The above will define a new definition type, <code>page</code>, and add the missing methods to it, provided that the documentation is already handled through <code><a href="http://l1sp.org/cl/documentation" class="xref">cl:documentation</a></code> on the <code>my-package:page</code> type, and that <code>my-package:find-page</code> returns the page object associated with a name. From there on out, <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AFIND-DEFINITIONS" class="xref">find-definitions</a></code> will pick up <code>page</code> definitions as well. </p> <p>Depending on how your implementation tracks source information, and how well it is supported by this library, <code>source-information</code> might work automatically on new definition types once a suitable <code><a href="#GENERIC-FUNCTION%20DEFINITIONS%3AOBJECT" class="xref">object</a></code> method is in place. However, in general, it is not guaranteed that source tracking will be provided, let alone for definitions that are not standard.</p> <h2 id="currently_supported_implementations">Currently Supported Implementations</h2> <p>Some parts of this library such as the discovery of certain definitions, retrieval of some object bindings, and the source location tracking are implementation-specific. As such, in order to be complete, implementation-specific parts need to be written. Currently the following implementations are <em>fully</em> supported. Note that even if your implementation is not listed here, this library may still be useful.</p> <ul> <li>SBCL</li> <li>CCL</li> <li>Clasp</li> </ul> </section>  <section id="system"> <h2>System Information</h2>  <div class="row"> <label for="version">Version:</label> <a id="version">1.0.0</a> </div>   <div class="row"> <label for="dependencies">Dependencies:</label> <ul id="dependencies"><li><a class="external" href="https://github.com/Shinmera/documentation-utils">documentation-utils</a></li><li><a class="external">sb-introspect</a></li><li><a class="external">sb-cltl2</a></li></ul> </div>   <div class="row"> <label for="author">Author:</label> <a id="author" href="mailto:shinmera@tymoon.eu">Nicolas Hafner</a> </div>   <div class="row"> <label for="license">License:</label> <a id="license" href="https://github.com/Shinmera/definitions/blob/master/LICENSE">Artistic</a> </div>   <div class="row"> <label for="homepage">Homepage:</label> <a id="homepage" href="https://github.com/Shinmera/definitions">https://github.com/Shinmera/definitions</a> </div>  </section>  <section id="index"> <h2>Definition Index</h2> <ul> <li> <article class="definition package" id="PACKAGE DEFINITIONS"> <header> <h3> <a href="#PACKAGE%20DEFINITIONS">DEFINITIONS</a> </h3> <ul class="nicknames"> <li>ORG.SHIRAKUMO.DEFINITIONS</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/package.lisp#L7">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition class NIL" id="CLASS DEFINITIONS:ALIEN-TYPE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AALIEN-TYPE">ALIEN-TYPE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L107">Source</a>  </header> <div class="docstring"><pre>Alien-type definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:CALLABLE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ACALLABLE">CALLABLE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L32">Source</a>  </header> <div class="docstring"><pre>Superclass for all definitions that represent objects that may be called.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AARGUMENTS" class="xref">ARGUMENTS</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:CLASS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ACLASS">CLASS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L22">Source</a>  </header> <div class="docstring"><pre>Class definition representation.
+
+Note that this does not include conditions, or structures.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:COMPILER-MACRO"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ACOMPILER-MACRO">COMPILER-MACRO</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L16">Source</a>  </header> <div class="docstring"><pre>Compiler-macro definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:CONDITION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ACONDITION">CONDITION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L23">Source</a>  </header> <div class="docstring"><pre>Condition definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:CONSTANT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ACONSTANT">CONSTANT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L27">Source</a>  </header> <div class="docstring"><pre>Constant definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:DECLARATION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ADECLARATION">DECLARATION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L183">Source</a>  </header> <div class="docstring"><pre>Declaration definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:DEFINITION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ADEFINITION">DEFINITION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L11">Source</a>  </header> <div class="docstring"><pre>Base class for all definitions.
+
+Any definition type MUST subclass this class.
+
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADESIGNATOR" class="xref">DESIGNATOR</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AOBJECT" class="xref">OBJECT</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASYMBOL" class="xref">SYMBOL</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ANAME" class="xref">NAME</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3APACKAGE" class="xref">PACKAGE</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ATYPE" class="xref">TYPE</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AVISIBILITY" class="xref">VISIBILITY</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADOCUMENTATION" class="xref">DOCUMENTATION</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASOURCE-LOCATION" class="xref">SOURCE-LOCATION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AFUNCTION">FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L14">Source</a>  </header> <div class="docstring"><pre>Function definition representation.
+
+Note that this does not include macros, compiler-macros, setf-
+expanders, or methods.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:GENERIC-FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AGENERIC-FUNCTION">GENERIC-FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L18">Source</a>  </header> <div class="docstring"><pre>Generic-function definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:GLOBAL-DEFINITION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION">GLOBAL-DEFINITION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L40">Source</a>  </header> <div class="docstring"><pre>Superclass for global definitions reachable by a simple designator.
+
+This class provides standard implementations for
+OBJECT, SYMBOL, NAME, PACKAGE, VISIBILITY, DOCUMENTATION, and
+SOURCE-LOCATION. This means that all that's necessary to reach
+compliance for a new subtype of GLOBAL-DEFINITION is the
+implementation of an appropriate TYPE method.
+
+However, specific implementations of the other functions,
+particularly OBJECT, and DOCUMENTATION are usually needed in
+order to make all the information available.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADESIGNATOR" class="xref">DESIGNATOR</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:IR1-CONVERT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AIR1-CONVERT">IR1-CONVERT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L174">Source</a>  </header> <div class="docstring"><pre>IR1-Convert definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:MACRO"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AMACRO">MACRO</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L15">Source</a>  </header> <div class="docstring"><pre>Macro definition representation.
+
+Note that this does not include compiler-macros, setf-expanders,
+or symbol-macros.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:METHOD"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AMETHOD">METHOD</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L19">Source</a>  </header> <div class="docstring"><pre>Method definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AQUALIFIERS" class="xref">QUALIFIERS</a>
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:METHOD-COMBINATION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AMETHOD-COMBINATION">METHOD-COMBINATION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L21">Source</a>  </header> <div class="docstring"><pre>Method-combination definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:OPTIMIZER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AOPTIMIZER">OPTIMIZER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L116">Source</a>  </header> <div class="docstring"><pre>Optimizer definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:PACKAGE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3APACKAGE">PACKAGE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L12">Source</a>  </header> <div class="docstring"><pre>Package definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:SETF-EXPANDER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ASETF-EXPANDER">SETF-EXPANDER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L17">Source</a>  </header> <div class="docstring"><pre>Setf-expander definition representation.
+
+Note that this is not discoverable portably.
+Note that this does not include functions with a (SETF ..)
+designator.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:SOURCE-TRANSFORM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ASOURCE-TRANSFORM">SOURCE-TRANSFORM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L139">Source</a>  </header> <div class="docstring"><pre>Source-transform definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:SPECIAL-OPERATOR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ASPECIAL-OPERATOR">SPECIAL-OPERATOR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L9">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:SPECIAL-VARIABLE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ASPECIAL-VARIABLE">SPECIAL-VARIABLE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L26">Source</a>  </header> <div class="docstring"><pre>Special variable definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:STRUCTURE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ASTRUCTURE">STRUCTURE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L24">Source</a>  </header> <div class="docstring"><pre>Structure definition representation.
+
+Note that this may not include structures that are defined
+as :VECTOR types.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:SYMBOL-MACRO"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ASYMBOL-MACRO">SYMBOL-MACRO</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L28">Source</a>  </header> <div class="docstring"><pre>Symbol-macro definition representation.
+
+Note that this is not discoverable portably.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:TRANSFORM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ATRANSFORM">TRANSFORM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L151">Source</a>  </header> <div class="docstring"><pre>Transform definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:TYPE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ATYPE">TYPE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L10">Source</a>  </header> <div class="docstring"><pre>Superclass that represents type definitions.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:TYPE-DEFINITION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3ATYPE-DEFINITION">TYPE-DEFINITION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L25">Source</a>  </header> <div class="docstring"><pre>Type definition representation.
+
+Note that this is not discoverable portably.
+Note that this is only for TYPEDEF-defined types.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:VARIABLE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AVARIABLE">VARIABLE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L11">Source</a>  </header> <div class="docstring"><pre>Superclass that represents variable definitions.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition class NIL" id="CLASS DEFINITIONS:VOP"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20DEFINITIONS%3AVOP">VOP</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/sbcl.lisp#L165">Source</a>  </header> <div class="docstring"><pre>VOP definition representation.
+
+See <a href="#CLASS%20DEFINITIONS%3AGLOBAL-DEFINITION" class="xref">GLOBAL-DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION DEFINITIONS:APROPOS-DEFINITIONS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20DEFINITIONS%3AAPROPOS-DEFINITIONS">APROPOS-DEFINITIONS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">STRING</li>  <li class="argument">&amp;KEY</li>  <li class="argument">(TYPE T)</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L110">Source</a>  </header> <div class="docstring"><pre>Fuzzily search for definitions matching the given string.
+
+The search is fuzzy in the following way:
+If a symbol's name contains the search string regardless of case,
+then the symbol is considered to match, and all definitions
+designated by the symbol are included in the
+result.
+
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AFIND-DEFINITIONS" class="xref">FIND-DEFINITIONS</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION DEFINITIONS:DEFINITION-RESOLVER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20DEFINITIONS%3ADEFINITION-RESOLVER">DEFINITION-RESOLVER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">NAME</li>  <li class="argument">&amp;OPTIONAL</li>  <li class="argument">(ERRORP T)</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L75">Source</a>  </header> <div class="docstring"><pre>Accessor to the definition resolver of the given name.
+
+A definition resolver is a function that accepts two arguments, 
+a designator and a package, and returns a list of DEFINITION
+instances that are named by this designator.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a>
+See <a href="#FUNCTION%20DEFINITIONS%3AREMOVE-DEFINITION-RESOLVER" class="xref">REMOVE-DEFINITION-RESOLVER</a>
+See <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-DEFINITION-RESOLVER" class="xref">DEFINE-DEFINITION-RESOLVER</a>
+See <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-SIMPLE-DEFINITION-RESOLVER" class="xref">DEFINE-SIMPLE-DEFINITION-RESOLVER</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION DEFINITIONS:(SETF DEFINITION-RESOLVER)"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20DEFINITIONS%3A%28SETF%20DEFINITION-RESOLVER%29">(SETF DEFINITION-RESOLVER)</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">FUNCTION</li>  <li class="argument">NAME</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L79">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION DEFINITIONS:REMOVE-DEFINITION-RESOLVER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20DEFINITIONS%3AREMOVE-DEFINITION-RESOLVER">REMOVE-DEFINITION-RESOLVER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">NAME</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L82">Source</a>  </header> <div class="docstring"><pre>Removes the definition resolver of the given name.
+
+See <a href="#FUNCTION%20DEFINITIONS%3ADEFINITION-RESOLVER" class="xref">DEFINITION-RESOLVER</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:ARGUMENTS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AARGUMENTS">ARGUMENTS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CALLABLE</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L35">Source</a>  </header> <div class="docstring"><pre>Returns the lambda-list of the callable.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the lambda-list is available. In that
+case, the primary value is always NIL.
+
+A call to this function for any subtype of CALLABLE must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ACALLABLE" class="xref">CALLABLE</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:DESIGNATOR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADESIGNATOR">DESIGNATOR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L18">Source</a>  </header> <div class="docstring"><pre>Returns the designator that names this definition.
+
+Note that a single designator may name many definitions.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:DOCUMENTATION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADOCUMENTATION">DOCUMENTATION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L25">Source</a>  </header> <div class="docstring"><pre>Returns the documentation string associated with this definition.
+
+This may be NIL if no documentation is defined or known.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the docstring is available. In that case,
+the primary value is always NIL.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:FIND-DEFINITIONS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AFIND-DEFINITIONS">FIND-DEFINITIONS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DESIGNATOR</li>  <li class="argument">&amp;KEY</li>  <li class="argument">PACKAGE</li>  <li class="argument">TYPE</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L9">Source</a>  </header> <div class="docstring"><pre>Find applicable definitions for the given designator.
+
+Depending on the type of the designator, the following happens:
+  PACKAGE --- FIND-DEFINITIONS is called for each symbol in the
+              package, regardless of whether the symbol was
+              inherited, or internal.
+  STRING  --- FIND-DEFINITIONS is called on the package returned
+              by FIND-PACKAGE on the designator. If no package
+              is found, an error is signalled.
+  T       --- All definitions found by the definition resolvers
+              for the designator are returned as a single list.
+
+This function should not error except for the above mentioned
+case when a string is passed that does not name a package.
+
+The package argument designates the package that the global
+definitions should be relative to. This is mostly relevant for
+the visibility of the definition.
+
+The type argument allows you to constrain the search to
+definitions of the given type.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a>
+See <a href="#FUNCTION%20DEFINITIONS%3AAPROPOS-DEFINITIONS" class="xref">APROPOS-DEFINITIONS</a>
+See <a href="#FUNCTION%20DEFINITIONS%3ADEFINITION-RESOLVER" class="xref">DEFINITION-RESOLVER</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:NAME"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ANAME">NAME</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L21">Source</a>  </header> <div class="docstring"><pre>Returns the name of this definition as a string.
+
+For certain definitions this may be the same as the DESIGNATOR,
+or merely a simple mapping of the designator to a string.
+
+This function may return NIL if it is not applicable to reduce
+the designator to a string name.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:OBJECT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AOBJECT">OBJECT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L19">Source</a>  </header> <div class="docstring"><pre>Returns the object that this definition defines.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the object is available. In that case,
+the primary value is always NIL.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:PACKAGE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3APACKAGE">PACKAGE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L22">Source</a>  </header> <div class="docstring"><pre>Returns the package this definition is tied to.
+
+Typically this can be derived from the SYMBOL of the definition.
+This function is primarily provided for completeness and ease
+of use.
+
+This function may return NIL if it is not applicable for the
+definition to be tied to a particular package.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:QUALIFIERS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AQUALIFIERS">QUALIFIERS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">METHOD</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/base-types.lisp#L56">Source</a>  </header> <div class="docstring"><pre>Returns the list of qualifiers used for the method.
+
+A call to this function for any subtype of METHOD must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3AMETHOD" class="xref">METHOD</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:SOURCE-LOCATION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASOURCE-LOCATION">SOURCE-LOCATION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L26">Source</a>  </header> <div class="docstring"><pre>Returns the source location information of this definition.
+
+A successful return will have the form of a plist with the
+following keys and values:
+
+  :FILE    --- A pathname to the file in which the definition
+               was made. This pathname may be logical.
+  :FORM    --- The number of the toplevel form in which this
+               definition was made. This means that in order
+               to read the definition, this number of calls+1
+               to READ must be made. This value may be NIL.
+  :OFFSET  --- The offset in characters at which this
+               definition was made. If :FORM is given, this
+               offset is within the form that is indicated by
+               the :FORM value. Otherwise, this offset is in
+               terms of FILE-POSITION from the beginning of
+               the file.
+
+This may be NIL if no source location is available or known.
+
+The secondary value of this function is :UNKNOWN if no known
+method of retrieving the source location is available. In
+that case, the primary value is always NIL.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:SYMBOL"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ASYMBOL">SYMBOL</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L20">Source</a>  </header> <div class="docstring"><pre>Returns the symbol naming this definition.
+
+This is different from the designator in the sense that the
+designator may be a compound expression that can be mapped to
+a single symbol. For instance, the (SETF FOO) designator would
+be reduced to the symbol FOO.
+
+This function may return NIL if it is not applicable to reduce
+the designator to a symbol.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:TYPE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ATYPE">TYPE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L23">Source</a>  </header> <div class="docstring"><pre>Returns the type of the object the definition defines.
+
+For cases where the definition can be instantiated, this is
+equivalent to calling TYPE-OF on an instance of such a
+definition.
+
+This function may NOT return NIL, and must always return some
+symbol that can be used to identify the type of the definition.
+
+Note that this symbol is not necessarily unique to the type of
+the definition, meaning multiple definitions may share the same
+name.
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION DEFINITIONS:VISIBILITY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AVISIBILITY">VISIBILITY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">DEFINITION</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L24">Source</a>  </header> <div class="docstring"><pre>Returns the visibility of the definition from its package.
+
+Returns one of the symbol status designators:
+  :INTERNAL :EXTERNAL :INHERITED NIL
+
+A call to this function for any subtype of DEFINITION must
+not error.
+
+See <a href="http://l1sp.org/cl/find-symbol" class="xref">CL:FIND-SYMBOL</a>
+See <a href="#CLASS%20DEFINITIONS%3ADEFINITION" class="xref">DEFINITION</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION DEFINITIONS:DEFINE-DEFINITION-RESOLVER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-DEFINITION-RESOLVER">DEFINE-DEFINITION-RESOLVER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">NAME</li>  <li class="argument">ARGS</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L85">Source</a>  </header> <div class="docstring"><pre>Define a new definition resolver.
+
+This is mostly provided as a shorthand.
+
+See <a href="#FUNCTION%20DEFINITIONS%3ADEFINITION-RESOLVER" class="xref">DEFINITION-RESOLVER</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION DEFINITIONS:DEFINE-SIMPLE-DEFINITION-RESOLVER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-SIMPLE-DEFINITION-RESOLVER">DEFINE-SIMPLE-DEFINITION-RESOLVER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CLASS</li>  <li class="argument">LOOKUP-FUNCTION</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L117">Source</a>  </header> <div class="docstring"><pre>A simpler form to define a definition resolver.
+
+This comes in two forms, short-form and long-form:
+
+SHORT-FORM
+  In this form, only LOOKUP-FUNCTION is provided, and must be a
+  symbol that names the test-function.
+
+LONG-FORM
+  In this form, LOOKUP-FUNCTION is a lambda-list, and BODY is
+  the forms that make up the test-function.
+
+If the test-function returns successfully and returns non-NIL,
+then the definition resolver returns a list with a single
+instance of the given CLASS, providing the designator as the
+initarg for :DESIGNATOR.
+
+The name of the definition resolver is set to CLASS.
+
+See <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-DEFINITION-RESOLVER" class="xref">DEFINE-DEFINITION-RESOLVER</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION DEFINITIONS:DEFINE-SIMPLE-DOCUMENTATION-LOOKUP"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-SIMPLE-DOCUMENTATION-LOOKUP">DEFINE-SIMPLE-DOCUMENTATION-LOOKUP</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CLASS</li>  <li class="argument">DOCUMENTATION-TYPE</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L133">Source</a>  </header> <div class="docstring"><pre>A simpler form to define the documentation lookup.
+
+This simply delegates the lookup to CL:DOCUMENTATION, using the
+provided arguments. If the DOCUMENTATION-TYPE is T, then 
+CL:DOCUMENTATION is called with the OBJECT of the definition.
+Otherwise, CL:DOCUMENTATION is called with the DESIGNATOR of the
+definition and the provided DOCUMENTATION-TYPE.
+
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADOCUMENTATION" class="xref">DOCUMENTATION</a>
+See <a href="http://l1sp.org/cl/documentation" class="xref">CL:DOCUMENTATION</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AOBJECT" class="xref">OBJECT</a>
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ADESIGNATOR" class="xref">DESIGNATOR</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION DEFINITIONS:DEFINE-SIMPLE-OBJECT-LOOKUP"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-SIMPLE-OBJECT-LOOKUP">DEFINE-SIMPLE-OBJECT-LOOKUP</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CLASS</li>  <li class="argument">LOOKUP-FUNCTION</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L126">Source</a>  </header> <div class="docstring"><pre>A simpler form to define the OBJECT method.
+
+This comes in two forms, short-form and long-form:
+
+SHORT-FORM
+  In this form, only LOOKUP-FUNCTION is provided, and must be
+  a symbol that names the lookup-function.
+
+LONG-FORM
+  In this form, LOOKUP-FUNCTION is a lambda-list, and BODY is
+  the forms that make up the lookup-function.
+
+The lookup-function must accept a single argument, the
+definition instance, and must either return the object that the
+definition defines, or two values: NIL and :UNKNOWN.
+
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3AOBJECT" class="xref">OBJECT</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION DEFINITIONS:DEFINE-SIMPLE-TYPE-MAP"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20DEFINITIONS%3ADEFINE-SIMPLE-TYPE-MAP">DEFINE-SIMPLE-TYPE-MAP</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CLASS</li>  <li class="argument">TYPE</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/definitions/blob/master/protocol.lisp#L139">Source</a>  </header> <div class="docstring"><pre>A simpler form to define the type lookup.
+
+This simply defines a method on TYPE for the given class,
+returning the TYPE symbol.
+
+See <a href="#GENERIC-FUNCTION%20DEFINITIONS%3ATYPE" class="xref">TYPE</a></pre></div> </article> </li> </ul> </article> </li> </ul> </section> </article> <script>window.addEventListener("DOMContentLoaded", function(){
+    var unmarkElement = function(el){
+        if(el.tagName === "mark" || el.tagName === "MARK"){
+            [].forEach.call(el.childNodes, function(child){
+                el.parentNode.insertBefore(child, el);
+            });
+            el.parentNode.removeChild(el);
+        }else if(el.parentNode.tagName === "mark"){
+            return unmarkElement(el.parentNode);
+        }
+        return null;
+    }
+
+    var unmarkAll = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("mark"), unmarkElement);
+    }
+    
+    var markElement = function(el){
+        if(el.parentNode.tagName === "mark" || el.parentNode.tagName === "MARK"){
+            return el.parentNode;
+        } else {
+            unmarkAll();
+            var marked = document.createElement("mark");
+            el.parentNode.insertBefore(marked, el);
+            marked.appendChild(el);
+            return marked;
+        }
+    }
+
+    var markFragmented = function(){
+        if(window.location.hash){
+            var el = document.getElementById(decodeURIComponent(window.location.hash.substr(1)));
+            if(el) markElement(el);
+        }
+    }
+
+    var registerXrefLink = function(link){
+        var el = document.getElementById(decodeURIComponent(link.getAttribute("href").substr(1)));
+        if(el){
+            link.addEventListener("click", function(){
+                markElement(el);
+            });
+        }
+    }
+
+    var registerXrefLinks = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("a.xref"), registerXrefLink);
+    }
+
+    markFragmented();
+    registerXrefLinks();
+}); </script> </body> </html> 
