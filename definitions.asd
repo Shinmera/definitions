@@ -10,7 +10,9 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "General definitions reflection library."
-  :homepage "https://github.com/Shinmera/definitions"
+  :homepage "https://Shinmera.github.io/definitions/"
+  :bug-tracker "https://github.com/Shinmera/definitions/issues"
+  :source-control (:git "https://github.com/Shinmera/definitions.git")
   :serial T
   :components ((:file "package")
                (:file "protocol")
