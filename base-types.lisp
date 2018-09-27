@@ -135,7 +135,8 @@
 
 (defun designator-structure-p (designator)
   (when (symbolp designator)
-    (ignore-errors (subtypep designator 'cl:structure-class))))
+    (ignore-errors (typep (find-class designator)
+                          'cl:structure-class))))
 
 (defun designator-condition-p (designator)
   (when (symbolp designator)
