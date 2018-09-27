@@ -140,7 +140,8 @@
 
 (defun designator-condition-p (designator)
   (when (symbolp designator)
-    (ignore-errors (subtypep designator 'cl:condition))))
+    (ignore-errors (and (subtypep designator 'cl:condition)
+                        (not (subtypep designator 'cl:nil))))))
 
 (defun designator-class-p (designator)
   (ignore-errors
