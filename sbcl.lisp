@@ -53,8 +53,9 @@
 
 (defmacro define-definition-introspect-type (class type)
   `(defmethod source-location ((,class ,class))
-     (transform-definition-source
-      (first (sb-introspect:find-definition-sources-by-name (designator ,class) ,type)))))
+     (or (call-next-method)
+         (transform-definition-source
+          (first (sb-introspect:find-definition-sources-by-name (designator ,class) ,type))))))
 
 (define-definition-introspect-type class :class)
 (define-definition-introspect-type compiler-macro :compiler-macro)
