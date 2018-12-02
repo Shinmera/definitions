@@ -60,7 +60,7 @@
 (defmacro define-definition-source-location-type (class type)
   `(defmethod source-location ((,class ,class))
      (transform-source-location
-      (ext:source-location (designator ,class) ,type))))
+      (first (ext:source-location (designator ,class) ,type)))))
 
 (define-definition-source-location-type function :function)
 (define-definition-source-location-type generic-function :function)
