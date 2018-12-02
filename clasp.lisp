@@ -33,7 +33,7 @@
   (find-class (designator condition)))
 
 (defmethod object ((structure structure))
-  (find-class (designator condition)))
+  (find-class (designator structure)))
 
 (defmethod object ((method-combination method-combination))
   (ignore-errors (clos::search-method-combination (designator method-combination))))
