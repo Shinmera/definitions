@@ -7,7 +7,8 @@
 (in-package #:org.shirakumo.definitions)
 
 (defmethod object ((type-definition type-definition))
-  (sb-int:info :type :expander (designator type-definition)))
+  (or (sb-int:info :type :expander (designator type-definition))
+      (values NIL :unknown)))
 
 (defmethod object ((setf-expander setf-expander))
   (let ((expander (sb-int:info :setf :expander (designator setf-expander))))
@@ -18,7 +19,8 @@
   (find-class (designator condition)))
 
 (defmethod object ((structure structure))
-  (sb-int:info :typed-structure :info (designator structure)))
+  (or (sb-int:info :typed-structure :info (designator structure))
+      (values NIL :unknown)))
 
 (defmethod object ((method-combination method-combination))
   (find-method #'sb-mop:find-method-combination
