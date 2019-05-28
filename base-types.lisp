@@ -115,12 +115,12 @@
 (define-simple-definition-resolver condition designator-condition-p)
 (define-simple-definition-resolver structure designator-structure-p)
 (define-simple-definition-resolver constant designator-constant-p)
+(define-simple-definition-resolver symbol-macro designator-symbol-macro-p)
 ;; IMPL (define-simple-definition-resolver setf-expander ..)
 ;; IMPL (define-definition-resolver method ..)
 ;; IMPL (define-simple-definition-resolver method-combination ..)
 ;; IMPL (define-simple-definition-resolver type-definition ..)
 ;; IMPL (define-simple-definition-resolver special-variable ..)
-;; IMPL (define-simple-definition-resolver symbol-macro ..)
 
 (defun designator-function-p (designator)
   (ignore-errors
@@ -153,6 +153,10 @@
 (defun designator-constant-p (designator)
   (when (symbolp designator)
     (constantp designator)))
+
+(defun designator-symbol-macro-p (designator)
+  (when (symbolp designator)
+    (nth-value 1 (macroexpand-1 designator))))
 
 ;; FIXME: add non-local types such as labels, blocks, tags, restarts, and lexical variables
 ;;        though I have no idea how discovery should be handled for those things.
