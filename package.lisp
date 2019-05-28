@@ -50,6 +50,7 @@
   ;; protocol.lisp
   (:export
    #:find-definitions
+   #:definition-p
    #:definition
    #:designator
    #:object

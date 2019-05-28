@@ -7,6 +7,7 @@
 (in-package #:org.shirakumo.definitions)
 
 (defgeneric find-definitions (designator &key package type))
+(defgeneric definition-p (designator type &key package))
 
 (defclass definition ()
   ())
@@ -104,8 +105,11 @@
 
 (defmethod find-definitions ((string string) &key (package NIL local-p) (type T))
   (let ((search (or (find-package string)
-                     (error "No package named ~s available." string))))
+                    (error "No package named ~s available." string))))
     (find-definitions search :package (if local-p package search) :type type)))
+
+(defmethod definition-p (thing type &key (package NIL local-p))
+  (not (null (find-definitions thing :package package :type type))))
 
 (defun apropos-definitions (string &key (type T))
   (loop for package in (list-all-packages)

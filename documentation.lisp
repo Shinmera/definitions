@@ -35,6 +35,18 @@ See DEFINITION
 See APROPOS-DEFINITIONS
 See DEFINITION-RESOLVER")
 
+  (cl:function definition-p
+    "Test whether a designator is designating a definition of the given type.
+
+You may pass T for the type to test whether the designator is
+designating any definition at all.
+
+This has the same semantics as calling FIND-DEFINITIONS with the
+designator, package, and type passed along, and checking that
+the returned list of definitions isn't empty.
+
+See FIND-DEFINITIONS")
+
   (cl:type definition
     "Base class for all definitions.
 
