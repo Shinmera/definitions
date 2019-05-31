@@ -116,11 +116,6 @@
 (define-simple-definition-resolver structure designator-structure-p)
 (define-simple-definition-resolver constant designator-constant-p)
 (define-simple-definition-resolver symbol-macro designator-symbol-macro-p)
-;; IMPL (define-simple-definition-resolver setf-expander ..)
-;; IMPL (define-definition-resolver method ..)
-;; IMPL (define-simple-definition-resolver method-combination ..)
-;; IMPL (define-simple-definition-resolver type-definition ..)
-;; IMPL (define-simple-definition-resolver special-variable ..)
 
 (defun designator-function-p (designator)
   (ignore-errors
@@ -158,5 +153,122 @@
   (when (symbolp designator)
     (nth-value 1 (macroexpand-1 designator))))
 
+(defmethod bind (designator (type function) (object cl:function))
+  (when (fboundp designator)
+    (error 'binding-exists :type type :designator designator))
+  (setf (fdefinition designator) object)
+  designator)
+
+(defmethod bind (designator (type macro) (object cl:function))
+  (when (fboundp designator)
+    (error 'binding-exists :type type :designator designator))
+  (eval `(defmacro ,designator (&rest _)))
+  (setf (macro-function designator) object)
+  designator)
+
+(defmethod bind (designator (type compiler-macro) (object cl:function))
+  (when (or (macro-function designator)
+            (compiler-macro-function designator))
+    (error 'binding-exists :type type :designator designator))
+  (setf (compiler-macro-function designator) object)
+  designator)
+
+(defmethod bind ((designator cl:symbol) (type class) (object cl:class))
+  (when (find-class designator NIL)
+    (error 'binding-exists :type type :designator designator))
+  (setf (find-class designator) object)
+  designator)
+
+(defmethod bind ((designator cl:symbol) (type special-variable) object)
+  (when (boundp designator)
+    (error 'binding-exists :type type :designator designator))
+  (proclaim `(special ,designator))
+  (setf (symbol-value designator) object)
+  designator)
+
+(defmethod bind ((designator cl:symbol) (type constant) object)
+  (when (boundp designator)
+    (error 'binding-exists :type type :designator designator))
+  (eval `(defconstant ,designator ,object))
+  designator)
+
+(defmethod bind ((designator cl:symbol) (type symbol-macro) object)
+  (when (or (boundp designator)
+            (designator-symbol-macro-p designator))
+    (error 'binding-exists :type type :designator designator))
+  (eval `(define-symbol-macro ,designator ,object))
+  designator)
+
+(defmethod unbind ((definition package))
+  (delete-package (designator definition)))
+
+(defmethod unbind ((definition function))
+  (fmakunbound (designator definition)))
+
+(defmethod unbind ((definition macro))
+  (fmakunbound (designator definition)))
+
+(defmethod unbind ((definition compiler-macro))
+  (setf (compiler-macro-function (designator definition)) NIL))
+
+(defmethod unbind ((definition method))
+  (remove-method (fdefinition (designator definition)) (method definition)))
+
+(defmethod unbind ((definition class))
+  (setf (find-class (designator definition)) NIL))
+
+(defmethod unbind ((definition special-variable))
+  ;; FIXME: how to declare not special?
+  (makunbound (designator definition)))
+
+(defmethod (setf object) ((object cl:function) (definition function))
+  (setf (fdefinition (designator definition)) object))
+
+(defmethod (setf object) ((object cl:function) (definition macro))
+  (setf (macro-function (designator definition)) object))
+
+(defmethod (setf object) ((object cl:function) (definition compiler-macro))
+  (setf (compiler-macro-function (designator definition)) object))
+
+(defmethod (setf object) ((object cl:class) (definition class))
+  (setf (find-class (designator definition)) object))
+
+(defmethod (setf object) (object (definition symbol-macro))
+  (eval `(define-symbol-macro ,(identifier definition) ,obejct))
+  object)
+
+(defmethod (setf object) (object (definition special-variable))
+  (setf (symbol-value (designator definition)) object))
+
 ;; FIXME: add non-local types such as labels, blocks, tags, restarts, and lexical variables
 ;;        though I have no idea how discovery should be handled for those things.
+
+;; IMPL (defmethod bind ((designator symbol) (type setf-expander) (object cl:function)))
+;; IMPL (defmethod bind ((designator symbol) (type generic-function) (object cl:function)))
+;; IMPL (defmethod bind (designator (type method) (object _)))
+;; IMPL (defmethod bind ((designator symbol) (type method-combination) (object _)))
+;; IMPL (defmethod bind ((designator symbol) (type condition) (object _)))
+;; IMPL (defmethod bind ((designator symbol) (type structure) (object _)))
+;; IMPL (defmethod bind ((designator symbol) (type type-definition) (object cl:function)))
+
+;; IMPL (defmethod unbind ((definition setf-expander)))
+;; IMPL (defmethod unbind ((definition method-combination)))
+;; IMPL (defmethod unbind ((definition condition)))
+;; IMPL (defmethod unbind ((definition structure)))
+;; IMPL (defmethod unbind ((definition type-definition)))
+;; IMPL (defmethod unbind ((definition constant)))
+;; IMPL (defmethod unbind ((definition symbol-macro)))
+
+;; IMPL (defmethod (setf object) ((object cl:function) (definition method)))
+;; IMPL (defmethod (setf object ((object cl:function) (definition setf-expander)))
+;; IMPL (defmethod (setf object (object (definition method-combination)))
+;; IMPL (defmethod (setf object (object (definition condition)))
+;; IMPL (defmethod (setf object (object (definition structure)))
+;; IMPL (defmethod (setf object ((object cl:function) (definition type-definition)))
+;; IMPL (defmethod (setf object (object (definition constant)))
+
+;; IMPL (define-simple-definition-resolver setf-expander)
+;; IMPL (define-definition-resolver method)
+;; IMPL (define-simple-definition-resolver method-combination)
+;; IMPL (define-simple-definition-resolver type-definition)
+;; IMPL (define-simple-definition-resolver special-variable)
