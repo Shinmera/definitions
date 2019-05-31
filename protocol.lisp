@@ -26,6 +26,14 @@
 (defgeneric documentation (definition))
 (defgeneric source-location (definition))
 
+(define-condition binding-exists (error)
+  ((designator :initarg :designator :reader designator)
+   (type :initarg :type :reader type)))
+
+(defgeneric bind (designator type object))
+(defgeneric (setf object) (object definition))
+(defgeneric unbind (definition))
+
 ;; FIXME: We need other "object" or "identifier" lookups
 ;;        to accommodate wrapper definitions whose source
 ;;        locations might be pointed to by another object.
@@ -70,6 +78,9 @@
 
 (defmethod source-location ((definition global-definition))
   (values NIL :unknown))
+
+(defmethod bind (designator (type cl:symbol) object)
+  (bind designator (allocate-instance type) object))
 
 (defvar *definition-resolvers* (make-hash-table :test 'eql))
 

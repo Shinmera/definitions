@@ -12,6 +12,9 @@ Some subclasses of the general `definition`, like `callable` give you access to 
 
 If you would like to fuzzily search for definitions, you can use the `apropos-definitions` function. Do note that this will likely return very long lists of definitions for searches that aren't very long.
 
+## Modifying Definitions
+The library also includes an optional protocol for establishing, modifying, and removing definitions. To use this protocol, see the functions `bind`, `(setf object)`, and `unbind`.
+
 ## Extending Definitions
 Often time libraries and systems will introduce their own bindings and definitions that extend the environment. For instance, you might have a special kind of function definition that lives in its own namespace, or a particular kind of named resource. In this case it can be worthwhile to extend Definitions so that it can discover and handle information related to those definitions as well.
 
