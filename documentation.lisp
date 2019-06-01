@@ -204,6 +204,91 @@ not error.
 
 See DEFINITION")
 
+  (cl:type binding-exists
+    "Error signalled when a new binding conflicts with an existing one.
+
+The condition contains the DESIGNATOR and TYPE that the conflicting
+binding was intended to be for.
+
+See TYPE
+See DESIGNATOR
+See BIND")
+
+  (cl:function bind
+    "Creates a new definition binding.
+
+Returns the canonical designator for the new binding.
+
+DESIGNATOR must be a designator to which a binding should be
+established. The designator may be normalised to some other, canonical
+designator.
+
+TYPE must be the name or an instance of a definition type for which a
+new binding should be established. If it is a name, it is
+automatically coerced to an instance of the definition type. Note that
+this parameter is purely for dispatch purposes. Modifying or
+inspecting the instance in any way leads to undefined behaviour.
+
+OBJECT must be some object in a predefined format that contains the
+definition information to which the new binding will point. What the
+structure of this object should be depends on the definition to bind.
+
+If a binding of the given type for the given designator already
+exists, or the new binding would conflict with another existing
+binding in some way, an error of type BINDING-EXISTS must be
+signalled.
+
+If the binding protocol is not implemented, an error of type
+NO-APPLICABLE-METHOD is signalled.
+
+If you add custom definition types, you are encouraged to add methods
+to this function that allow standardised addition of new definition
+bindings.
+
+Once a call to this function returns successfully, DEFINITION-P of the
+used designator and type must return T.
+
+See (SETF OBJECT)
+See UNBIND")
+
+  (cl:function (setf object)
+    "Updates an existing definition binding.
+
+Returns the passed OBJECT.
+
+OBJECT must be some object in a predefined format that contains the
+definition information to which the new binding will point. What the
+structure of this object should be depends on the definition to bind.
+
+If the updating protocol is not implemented, an error of type
+NO-APPLICABLE-METHOD is signalled.
+
+If you add custom definition types, you are encouraged to add methods
+to this function that allow standardised updating of definition
+bindings.
+
+See BIND
+See UNBIND")
+
+  (cl:function unbind
+    "Removes the definition binding.
+
+If the given definition is already unbound, this function does
+nothing.
+
+If the unbinding protocol is not implemented for the given definition
+type, an error of type NO-APPLICABLE-METHOD is signalled.
+
+If you add custom definition types, you are encouraged to add methods
+to this function that allow standardised removal of definition
+bindings.
+
+Once a call to this function returns successfully, DEFINITION-P of the
+designator and type of the definition must return NIL.
+
+See (SETF OBJECT)
+See BIND")
+
   (cl:type callable
     "Superclass for all definitions that represent objects that may be called.
 

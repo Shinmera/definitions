@@ -61,6 +61,9 @@
    #:visibility
    #:documentation
    #:source-location
+   #:binding-exists
+   #:bind
+   #:unbind
    #:callable
    #:arguments
    #:global-definition
