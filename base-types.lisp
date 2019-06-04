@@ -136,7 +136,8 @@
 (defun designator-condition-p (designator)
   (when (symbolp designator)
     (ignore-errors (and (subtypep designator 'cl:condition)
-                        (not (subtypep designator 'cl:nil))))))
+                        (not (subtypep designator 'cl:nil))
+                        (null (funcall (definition-resolver 'type-definition) designator))))))
 
 (defun designator-class-p (designator)
   (ignore-errors
