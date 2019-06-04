@@ -47,6 +47,21 @@ the returned list of definitions isn't empty.
 
 See FIND-DEFINITIONS")
 
+  (cl:function who-defines
+    "Return all known definitions for a defined object.
+
+Returns a list of DEFINITIONs.
+
+This will attempt to do a reverse lookup of sorts. Given an object
+returned by OBJECT for a DEFINITION, this function should return said
+DEFINITION, and possibly others that bind the same object.
+
+This call can be costly as the default procedure relies on scanning
+through all known definitions to do the reverse lookup.
+
+See DEFINITION
+See OBJECT")
+
   (cl:type definition
     "Base class for all definitions.
 

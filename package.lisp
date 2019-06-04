@@ -51,6 +51,7 @@
   (:export
    #:find-definitions
    #:definition-p
+   #:who-defines
    #:definition
    #:designator
    #:object

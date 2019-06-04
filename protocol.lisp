@@ -8,6 +8,7 @@
 
 (defgeneric find-definitions (designator &key package type))
 (defgeneric definition-p (designator type &key package))
+(defgeneric who-defines (object))
 
 (defclass definition ()
   ())
@@ -121,6 +122,19 @@
 
 (defmethod definition-p (thing type &key (package NIL local-p))
   (not (null (find-definitions thing :package package :type type))))
+
+(defmethod who-defines (find)
+  (let ((results ())
+        (symbol-cache (make-hash-table :test 'eq)))
+    (do-all-symbols (symbol results)
+      (unless (gethash symbol symbol-cache)
+        (setf (gethash symbol symbol-cache) T)
+        (loop for resolver being the hash-values of *definition-resolvers*
+              for definitions = (funcall resolver symbol (symbol-package symbol))
+              do (dolist (definition definitions)
+                   (multiple-value-bind (object known-p) (object definition)
+                     (when (and (not (eql known-p :unknown)) (eq object find))
+                       (push definition results)))))))))
 
 (defun apropos-definitions (string &key (type T))
   (loop for package in (list-all-packages)
