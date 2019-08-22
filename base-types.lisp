@@ -118,41 +118,39 @@
 (define-simple-definition-resolver symbol-macro designator-symbol-macro-p)
 
 (defun designator-function-p (designator)
-  (ignore-errors
-   (and (fdefinition designator)
-        (or (listp designator)
-            (not (macro-function designator)))
-        (not (typep (fdefinition designator) 'cl:standard-generic-function)))))
+  (and (fboundp designator)
+       (or (listp designator)
+           (not (macro-function designator)))
+       (not (typep (fdefinition designator) 'cl:standard-generic-function))))
 
 (defun designator-generic-function-p (designator)
-  (ignore-errors
-   (typep (fdefinition designator) 'cl:standard-generic-function)))
+  (and (fboundp designator)
+       (typep (fdefinition designator) 'cl:standard-generic-function)))
 
 (defun designator-structure-p (designator)
-  (when (symbolp designator)
-    (ignore-errors (typep (find-class designator)
-                          'cl:structure-class))))
+  (and (symbolp designator)
+       (typep (find-class designator NIL)
+              'cl:structure-class)))
 
 (defun designator-condition-p (designator)
-  (when (symbolp designator)
-    (ignore-errors (and (subtypep designator 'cl:condition)
-                        (not (subtypep designator 'cl:nil))
-                        (null (funcall (definition-resolver 'type-definition) designator))))))
+  (and (symbolp designator)
+       (subtypep designator 'cl:condition)
+       (not (subtypep designator 'cl:nil))
+       (null (funcall (definition-resolver 'type-definition) designator))))
 
 (defun designator-class-p (designator)
-  (ignore-errors
-   (and (not (listp designator))
-        (not (designator-structure-p designator))
-        (not (designator-condition-p designator))
-        (find-class designator NIL))))
+  (and (symbolp designator)
+       (not (designator-structure-p designator))
+       (not (designator-condition-p designator))
+       (find-class designator NIL)))
 
 (defun designator-constant-p (designator)
-  (when (symbolp designator)
-    (constantp designator)))
+  (and (symbolp designator)
+       (constantp designator)))
 
 (defun designator-symbol-macro-p (designator)
-  (when (symbolp designator)
-    (nth-value 1 (macroexpand-1 designator))))
+  (and (symbolp designator)
+       (nth-value 1 (macroexpand-1 designator))))
 
 (defmethod bind (designator (type function) (object cl:function))
   (when (fboundp designator)
