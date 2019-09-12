@@ -136,7 +136,8 @@
   (and (symbolp designator)
        (subtypep designator 'cl:condition)
        (not (subtypep designator 'cl:nil))
-       (null (funcall (definition-resolver 'type-definition) designator))))
+       (or (null (definition-resolver 'type-definition))
+           (null (funcall (definition-resolver 'type-definition) designator (symbol-package designator))))))
 
 (defun designator-class-p (designator)
   (and (symbolp designator)
