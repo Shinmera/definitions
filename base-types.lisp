@@ -234,7 +234,7 @@
   (setf (find-class (designator definition)) object))
 
 (defmethod (setf object) (object (definition symbol-macro))
-  (eval `(define-symbol-macro ,(identifier definition) ,obejct))
+  (eval `(define-symbol-macro ,(designator definition) ,object))
   object)
 
 (defmethod (setf object) (object (definition special-variable))
