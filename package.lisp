@@ -79,6 +79,7 @@
   ;;; Extra
   ;; sbcl.lisp
   (:export
+   #:global
    #:alien-type
    #:optimizer
    #:source-transform

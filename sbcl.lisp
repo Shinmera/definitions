@@ -107,6 +107,15 @@
 
 ;;; Extra SBCL definitions
 
+(defclass global (variable) ())
+
+(define-simple-type-map global :global)
+
+(define-simple-definition-resolver global (designator)
+  (eq :global (sb-cltl2:variable-information designator)))
+
+(define-definition-introspect-type global :global)
+
 (defclass alien-type (global-definition) ())
 
 (define-simple-type-map alien-type sb-alien-internals:alien-type)
