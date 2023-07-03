@@ -1,9 +1,3 @@
-#|
- This file is a part of Definitions
- (c) 2018 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
-|#
-
 (cl:defpackage #:definitions
   (:nicknames #:org.shirakumo.definitions)
   (:shadow
