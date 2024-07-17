@@ -48,6 +48,12 @@
          (transform-definition-source
           (sb-introspect:find-definition-source object))))))
 
+(defmethod source-location ((definition type-definition))
+  (ignore-errors
+   (transform-definition-source
+    (sb-introspect::translate-source-location
+     (sb-int:info :type :source-location (designator definition))))))
+
 (defmacro define-definition-introspect-type (class type)
   `(defmethod source-location ((,class ,class))
      (or (call-next-method)
@@ -66,7 +72,6 @@
 (define-definition-introspect-type package :package)
 (define-definition-introspect-type structure :structure)
 (define-definition-introspect-type symbol-macro :symbol-macro)
-(define-definition-introspect-type type-definition :type)
 (define-definition-introspect-type special-variable :variable)
 
 (defun transform-definition-source (source)
