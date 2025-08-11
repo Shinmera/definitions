@@ -4,9 +4,9 @@
   :author "Yukari Hafner <shinmera@tymoon.eu>"
   :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :description "General definitions reflection library."
-  :homepage "https://Shinmera.github.io/definitions/"
-  :bug-tracker "https://github.com/Shinmera/definitions/issues"
-  :source-control (:git "https://github.com/Shinmera/definitions.git")
+  :homepage "https://shinmera.com/docs/definitions/"
+  :bug-tracker "https://shinmera.com/project/definitions/issues"
+  :source-control (:git "https://shinmera.com/project/definitions.git")
   :serial T
   :components ((:file "package")
                (:file "protocol")
